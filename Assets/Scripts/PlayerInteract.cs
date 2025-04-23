@@ -3,6 +3,7 @@ using UnityEngine;
 public class PlayerInteract : MonoBehaviour
 {
     private Camera cam;
+    [SerializeField]
     private LayerMask mask;
     [SerializeField]
     private float distance = 3f;
@@ -21,7 +22,9 @@ public class PlayerInteract : MonoBehaviour
         Debug.DrawRay(ray.origin, ray.direction * distance);
         RaycastHit hitInfo;
         if (Physics.Raycast(ray, out hitInfo,distance, mask)) {
-
+            if(hitInfo.collider.GetComponent<Interactable>() != null) {
+                Debug.Log(hitInfo.collider.GetComponent<Interactable>().promptMessage);
+            }
         }
 
     }
