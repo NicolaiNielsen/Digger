@@ -4,8 +4,8 @@ public class PlayerLook : MonoBehaviour
 {
     public Camera cam;
     private float xRotation = 0f;
-    private float xSensitivity = 30f;
-    private float ySensitivty = 30f;
+    public float xSensitivity = 30f;
+    public float ySensitivty = 30f;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public void ProcessLook(Vector2 input){
         float mouseX = input.x;
