@@ -5,7 +5,7 @@ using UnityEngine;
     public struct Voxel
     {
         //Convert to single float and access via accessors...
-        public byte ID;
+        public int ID;
 
         public bool isSolid
         {
