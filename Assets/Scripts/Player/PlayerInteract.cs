@@ -22,22 +22,39 @@ public class PlayerInteract : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        playerUI.UpdateText(string.Empty);
+void Update()
+{
+    playerUI.UpdateText(string.Empty);
 
-        Ray ray = new Ray(cam.transform.position, cam.transform.forward);
-        Debug.DrawRay(ray.origin, ray.direction * distance);
-        RaycastHit hitInfo;
-        if (Physics.Raycast(ray, out hitInfo,distance, mask)) {
-            if(hitInfo.collider.GetComponent<Interactable>() != null) {
-                Interactable interactable = hitInfo.collider.GetComponent<Interactable>();
-                playerUI.UpdateText(interactable.promptMessage);
-                if(inputManager.onFoot.Interact.triggered) {
+    Ray ray = new Ray(cam.transform.position, cam.transform.forward);
+    Debug.DrawRay(ray.origin, ray.direction * distance);
+    RaycastHit hitInfo;
+    
+    if (Physics.Raycast(ray, out hitInfo, distance, mask))
+    {
+        Interactable interactable = hitInfo.collider.GetComponent<Interactable>();
+        if (interactable != null)
+        {
+            playerUI.UpdateText(interactable.promptMessage);
+
+            // Handle Dig
+            if (hitInfo.collider.CompareTag("Diggable"))
+            {
+                if (inputManager.onFoot.Dig.triggered)
+                {
                     interactable.BaseInteract();
                 }
+            }
+            // Handle General Interaction
+            else
+            {
+                if (inputManager.onFoot.Interact.triggered)
+                {
+                    interactable.BaseInteract();
+                }
+            }
         }
-        }
-
     }
+}
+
 }
