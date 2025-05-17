@@ -7,27 +7,20 @@ public class Dig : Interactable
         Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, 3f, LayerMask.GetMask("Interactable"))) // Only Interactable layer
+        if (Physics.Raycast(ray, out hit, 3f, LayerMask.GetMask("Interactable")))
         {
-            Container container = hit.collider.GetComponent<Container>();
-            if (container != null)
+            Marching cube = hit.collider.GetComponent<Marching>();
+            if (cube != null)
             {
-                // Get local hit position in container space
-                Vector3 localHit = hit.point - container.transform.position;
+                // Convert hit point from world space to local space of the Marching object
+                Vector3 localHit = cube.transform.InverseTransformPoint(hit.point);
 
-                // Offset slightly into the block, based on the surface normal
-                Vector3 adjustedPos = localHit + (0.5f * -hit.normal); // "Dig into" the block you hit
+                Debug.Log($"Hit local point: {localHit}");
 
-                Vector3Int voxelPos = Vector3Int.FloorToInt(adjustedPos);
+                // Call RemoveTerrain with the local position so voxel indices match
+                cube.RemoveTerrain(localHit);
 
-                Debug.Log($"Trying to dig voxel at {voxelPos}");
-
-                if (container[voxelPos].isSolid)
-                {
-                    container[voxelPos] = new Voxel() { ID = 0 }; // Mark as empty
-                    container.GenerateMesh();
-                    container.UploadMesh();
-                }
+                Debug.Log($"Trying to dig marchingcube at local pos {localHit} on {cube.name}");
             }
         }
     }
