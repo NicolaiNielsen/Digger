@@ -324,11 +324,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3287948611943350881, guid: 0f3d14a9a6b2ceb469c15d151552a614, type: 3}
   m_PrefabInstance: {fileID: 1033602577}
   m_PrefabAsset: {fileID: 0}
---- !u!20 &658105184 stripped
-Camera:
-  m_CorrespondingSourceObject: {fileID: 1262587623359482447, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
-  m_PrefabInstance: {fileID: 9134984405564995170}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -495,7 +490,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a9a855be8f7c4e3409654b1b666a905c, type: 2}
+  - {fileID: 2100000, guid: 48c26796e9175d14a9b2eccded92bb92, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1076,7 +1071,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19f16f9dea51b7244a977bfbcf150097, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cam: {fileID: 658105184}
 --- !u!1001 &9134984405564995170
 PrefabInstance:
   m_ObjectHideFlags: 0

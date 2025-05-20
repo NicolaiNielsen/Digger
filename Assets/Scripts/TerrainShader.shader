@@ -1,4 +1,4 @@
-﻿Shader "Custom/Terrain" {
+﻿﻿Shader "Custom/Terrain" {
 
 	// These properties can be modified from the material inspector.
 	Properties{
