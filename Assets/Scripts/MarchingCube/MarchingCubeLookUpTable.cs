@@ -3,6 +3,7 @@ using UnityEngine;
 public static class MarchingCubeLookUpTable
 {
 
+
     /*
 
            (0,1,1)────────────(1,1,1)

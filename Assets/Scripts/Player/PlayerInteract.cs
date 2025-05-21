@@ -1,6 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
-using System.Collections;
 
 public class PlayerInteract : MonoBehaviour
 {
@@ -11,50 +9,51 @@ public class PlayerInteract : MonoBehaviour
     private float distance = 3f;
     private PlayerUI playerUI;
 
+    public WorldGenerator worldGenerator;
     private InputManager inputManager;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
-    {   
+    {
         cam = GetComponent<PlayerLook>().cam;
         playerUI = GetComponent<PlayerUI>();
         inputManager = GetComponent<InputManager>();
     }
 
-    // Update is called once per frame
-void Update()
-{
-    playerUI.UpdateText(string.Empty);
-
-    Ray ray = new Ray(cam.transform.position, cam.transform.forward);
-    Debug.DrawRay(ray.origin, ray.direction * distance);
-    RaycastHit hitInfo;
-    
-    if (Physics.Raycast(ray, out hitInfo, distance, mask))
+    void Update()
     {
-        Interactable interactable = hitInfo.collider.GetComponent<Interactable>();
-        if (interactable != null)
-        {
-            playerUI.UpdateText(interactable.promptMessage);
+        playerUI.UpdateText(string.Empty);
 
-            // Handle Dig
-            if (hitInfo.collider.CompareTag("Diggable"))
+        Ray ray = new Ray(cam.transform.position, cam.transform.forward);
+        Debug.DrawRay(ray.origin, ray.direction * distance);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, distance, mask))
+        {
+
+            if (hit.collider.CompareTag("Diggable"))
             {
+                // Update UI (optional)
+                playerUI.UpdateText("Press E to dig");
+
                 if (inputManager.onFoot.Dig.triggered)
                 {
-                    interactable.BaseInteract();
+                    Debug.Log("Digging...");
+                    if (Physics.Raycast(ray, out hit))
+                    {
+                        Debug.Log("Hit: " + hit.transform.name);
+                        if (hit.transform.tag == "Diggable")
+                            worldGenerator.GetChunk(hit.transform.position).RemoveTerrain(hit.point);
+
+                    }
+
                 }
             }
-            // Handle General Interaction
-            else
-            {
-                if (inputManager.onFoot.Interact.triggered)
-                {
-                    interactable.BaseInteract();
-                }
-            }
+        }
+        else
+        {
+            // Optional: show other interaction UI
+            playerUI.UpdateText("No diggable surface");
         }
     }
 }
 
-}
