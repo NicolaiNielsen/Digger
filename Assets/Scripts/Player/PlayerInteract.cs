@@ -34,15 +34,15 @@ public class PlayerInteract : MonoBehaviour
             {
                 // Update UI (optional)
                 playerUI.UpdateText("Press E to dig");
-
+                Vector3 hitPoint = hit.point;
+                
                 if (inputManager.onFoot.Dig.triggered)
                 {
-                    Debug.Log("Digging...");
                     if (Physics.Raycast(ray, out hit))
                     {
-                        Debug.Log("Hit: " + hit.transform.name);
+                        Debug.Log("Hit point: " + hitPoint);
                         if (hit.transform.tag == "Diggable")
-                            worldGenerator.GetChunk(hit.transform.position).RemoveTerrain(hit.point);
+                            worldGenerator.GetChunk(hit.point).RemoveTerrain(hit.point);
 
                     }
 

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem.Interactions;
 
 public class Chunk
 {
@@ -29,7 +30,7 @@ public class Chunk
     }
 
     float[,,] map;
-    float voxelSize = 0.10f; // smaller = more detail
+    public static float voxelSize = 0.25f; // smaller = more detail
 
 
     Vector3 VertexInterp(Vector3 p1, Vector3 p2, float valp1, float valp2)
@@ -81,60 +82,68 @@ public class Chunk
                 for (int y = 0; y < height + 1; y++)
                 {
                     float thisHeight;
-                    float worldX = x + chunkPosition.x;
-                    float worldZ = z + chunkPosition.z;
+                    float worldX = (x + chunkPosition.x) * voxelSize;
+                    float worldZ = (z + chunkPosition.z) * voxelSize;
 
                     thisHeight = GameData.GetTerrainHeight(worldX, worldZ);
                     // Set the value of this point in the terrainMap.
                     map[x, y, z] = (float)y - thisHeight;
+                    Debug.Log("Setting map value at " + x + " " + y + " " + z + " to " + map[x, y, z]);
 
                 }
             }
         }
     }
 
-public void RemoveTerrain(Vector3 worldPos, float digRadius = 1f)
+public void RemoveTerrain(Vector3 worldPos, float digRadius = 0.2f)
 {
-    Debug.Log("Removing terrain at " + worldPos);
+    Debug.Log($"Trying to remove terrain at worldPos {worldPos}");
+
+    // Convert to local space relative to chunk origin
     Vector3 localPos = worldPos - chunkObject.transform.position;
-    // Convert world position to local position relative to chunk origin in world space
 
-
-    // Convert local position to voxel indices
+    // Convert to voxel indices
     Vector3Int centerVoxel = new Vector3Int(
-        Mathf.FloorToInt(localPos.x / voxelSize),
-        Mathf.FloorToInt(localPos.y / voxelSize),
-        Mathf.FloorToInt(localPos.z / voxelSize)
+        Mathf.RoundToInt(localPos.x / voxelSize),
+        Mathf.RoundToInt(localPos.y / voxelSize),
+        Mathf.RoundToInt(localPos.z / voxelSize)
     );
 
-    // Convert digRadius in world units to voxel radius
+    Debug.Log($"Local position: {localPos}, Center voxel: {centerVoxel}");
+    float digStrength = 0.2f; // Example strength value
+    // Convert digRadius to voxel radius
     int voxelRadius = Mathf.CeilToInt(digRadius / voxelSize);
 
-    // Loop over voxels within the radius
     for (int x = centerVoxel.x - voxelRadius; x <= centerVoxel.x + voxelRadius; x++)
     {
         for (int y = centerVoxel.y - voxelRadius; y <= centerVoxel.y + voxelRadius; y++)
         {
             for (int z = centerVoxel.z - voxelRadius; z <= centerVoxel.z + voxelRadius; z++)
             {
-                // Check bounds
-                if (x < 0 || x > width || y < 0 || y > height || z < 0 || z > width)
-                    continue;
-
-                // Check if voxel is within sphere radius
-                Vector3Int offset = new Vector3Int(x, y, z) - centerVoxel;
-                float dist = offset.magnitude * voxelSize;
-                if (dist <= digRadius)
+                // Bounds check
+                if (x < 0 || x >= map.GetLength(0) ||
+                    y < 0 || y >= map.GetLength(1) ||
+                    z < 0 || z >= map.GetLength(2))
                 {
-                    // Set the density value high to "remove" terrain here
-                    map[x, y, z] = 1f; // 1 means empty/air in your setup
+                    continue;
+                }
+
+                // Check distance from center (optional for spherical dig)
+                Vector3 offset = new Vector3(x, y, z) - centerVoxel;
+                float distance = offset.magnitude * voxelSize;
+
+                if (distance <= digRadius)
+                {
+                    map[x, y, z] += digStrength; // e.g. digStrength = 0.2f
+                    map[x, y, z] = Mathf.Clamp(map[x, y, z], -1f, 1f); // Optional clamp
+                    map[x, y, z] = 1f; // 1 = empty / air
+                    Debug.Log($"Removing voxel at {x}, {y}, {z} (local)");
                 }
             }
         }
     }
 
-    // Rebuild the mesh to reflect changes
-    CreateMeshData();
+    CreateMeshData(); // Rebuild terrain mesh
 }
 
 
