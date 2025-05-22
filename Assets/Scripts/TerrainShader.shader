@@ -1,4 +1,4 @@
-﻿Shader "Custom/Terrain" {
+﻿Shader "Custom/TerrainDepricated" {
 	Properties{
 		_MainTex("Ground Texture", 2D) = "white" {}
 		_WallTex("Wall Texture", 2D) = "white" {}
