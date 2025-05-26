@@ -1,5 +1,7 @@
-#pragma kernel CSMain //Tells the shader compiler to run on GPU threads in CSMAIN
-#include "/Includes/Noise.compute" //Includes refere
+
+
+#pragma kernel CSMain
+#include "/Includes/Noise.compute"
 
 
 RWTexture3D<float> DensityTexture;

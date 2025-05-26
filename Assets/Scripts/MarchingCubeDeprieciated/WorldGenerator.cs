@@ -7,7 +7,7 @@ public class WorldGenerator : MonoBehaviour
 
     public int WorldSizeChunks = 10;
 
-    Dictionary<Vector3Int, Chunk> chunks = new Dictionary<Vector3Int, Chunk>();
+    Dictionary<Vector3Int, ChunkDepriecated> chunks = new Dictionary<Vector3Int, ChunkDepriecated>();
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public GameObject loadingScreen;
     void Start()
@@ -28,7 +28,7 @@ void Generate()
             Debug.Log($"Generating chunk at {chunkPosition}");
             Debug.Log($"World Size Chunks: {WorldSizeChunks}");
             // Create and store chunk
-                Chunk newChunk = new Chunk(chunkPosition);
+                ChunkDepriecated newChunk = new ChunkDepriecated(chunkPosition);
             chunks.Add(chunkPosition, newChunk);
 
             // Parent the chunk's GameObject
@@ -42,18 +42,18 @@ void Generate()
     foreach (var kvp in chunks)
     {
         Vector3Int chunkCoord = kvp.Key;
-        Chunk chunk = kvp.Value;
+        ChunkDepriecated chunk = kvp.Value;
 
         Debug.Log($"Chunk at grid {chunkCoord} - World Position: {chunk.chunkObject.transform.position}");
     }
 }
 
 
-public Chunk GetChunk(Vector3 position)
+public ChunkDepriecated GetChunk(Vector3 position)
     {
-        float chunkWorldSizeX = GameData.ChunkWidth * Chunk.voxelSize;
-        float chunkWorldSizeY = GameData.ChunkHeight * Chunk.voxelSize;
-        float chunkWorldSizeZ = GameData.ChunkWidth * Chunk.voxelSize;  // assuming square in x and z
+        float chunkWorldSizeX = GameData.ChunkWidth * ChunkDepriecated.voxelSize;
+        float chunkWorldSizeY = GameData.ChunkHeight * ChunkDepriecated.voxelSize;
+        float chunkWorldSizeZ = GameData.ChunkWidth * ChunkDepriecated.voxelSize;  // assuming square in x and z
 
         int chunkX = Mathf.FloorToInt(position.x / chunkWorldSizeX);
         int chunkY = Mathf.FloorToInt(position.y / chunkWorldSizeY);
@@ -65,7 +65,7 @@ public Chunk GetChunk(Vector3 position)
             chunkZ * GameData.ChunkWidth
         );
 
-        if (chunks.TryGetValue(chunkCoord, out Chunk chunk))
+        if (chunks.TryGetValue(chunkCoord, out ChunkDepriecated chunk))
         {
 
             Debug.Log("Found chunk at " + chunkCoord);

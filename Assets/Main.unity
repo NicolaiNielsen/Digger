@@ -697,6 +697,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1619588364}
+  - component: {fileID: 1619588365}
   m_Layer: 0
   m_Name: Terrain Generator
   m_TagString: Untagged
@@ -719,6 +720,34 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1619588365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1619588363}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98e77b5a31ba10143bc6e7c723d2e4a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  numChunks: 10
+  numPointsPerAxis: 50
+  boundsSize: 500
+  isoLevel: 0
+  useFlatShading: 0
+  noiseScale: 0.75
+  noiseHeightMultiplier: 0.075
+  blurMap: 0
+  blurRadius: 3
+  meshCompute: {fileID: 7200000, guid: cdd647ae6cdf1884784f00b2d886710c, type: 3}
+  densityCompute: {fileID: 7200000, guid: 010ef0f8809d01043a14d2b2e56810c1, type: 3}
+  blurCompute: {fileID: 7200000, guid: f07528ffd36f7df4ab037a391fc9e17c, type: 3}
+  editCompute: {fileID: 7200000, guid: a4501189317bb624f975926c78d89478, type: 3}
+  material: {fileID: 2100000, guid: e2a9c2dc9d5beb1428620197d0b1aabd, type: 2}
+  rawDensityTexture: {fileID: 0}
+  processedDensityTexture: {fileID: 0}
 --- !u!1 &1651815536
 GameObject:
   m_ObjectHideFlags: 0

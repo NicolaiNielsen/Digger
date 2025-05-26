@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class Chunk
+public class ChunkDepriecated
 {
     MeshFilter meshFilter;
     public GameObject chunkObject;
@@ -47,7 +47,7 @@ public class Chunk
 }
 
 
-    public Chunk(Vector3 _position)
+    public ChunkDepriecated(Vector3 _position)
     {
         chunkObject = new GameObject();
         chunkObject.name = string.Format("Chunk {0} {1} {2}", _position.x, _position.y, _position.z);

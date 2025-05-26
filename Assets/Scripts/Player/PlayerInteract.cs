@@ -42,7 +42,8 @@ public class PlayerInteract : MonoBehaviour
                     {
                         Debug.Log("Hit point: " + hitPoint);
                         if (hit.transform.tag == "Diggable")
-                            worldGenerator.GetChunk(hit.point).RemoveTerrain(hit.point);
+                            Debug.Log("TEst");
+                            //worldGenerator.GetChunk(hit.point).RemoveTerrain(hit.point);
 
                     }
 

@@ -73,43 +73,33 @@ Shader "Custom/Terrain"
 
 		void surf (Input IN, inout SurfaceOutputStandard o)
 		{
-
 			float3 t = worldToTexPos(IN.worldPos);
 			float density = tex3D(DensityTex, t);
-			// 0 = flat, 0.5 = vertical, 1 = flat (but upside down)
-			float steepness = 1 - (dot(normalize(IN.worldPos), IN.worldNormal) * 0.5 + 0.5);
-			float dstFromCentre = length(IN.worldPos);
 
 			float4 noise = triplanarOffset(IN.worldPos, IN.worldNormal, 30, _NoiseTex, 0);
 			float4 noise2 = triplanarOffset(IN.worldPos, IN.worldNormal, 50, _NoiseTex, 0);
-			//float angle01 = dot(normalize(IN.worldPos), IN.worldNormal) * 0.5 + 0.5;
-			//o.Albedo = lerp(float3(1,0,0), float3(0,1,0), smoothstep(0.4,0.6,angle01));
-
 			float metallic = 0;
 			float rockMetalStrength = 0.4;
-			
 			float threshold = 0.005;
+
 			if (density < -threshold) {
 				float rockDepthT = saturate(abs(density + threshold) * 20);
 				o.Albedo = lerp(_RockInnerShallow, _RockInnerDeep, rockDepthT);
 				metallic = lerp(rockMetalStrength, 1, rockDepthT);
 			}
 			else {
-				float4 grassCol = lerp(_GrassLight, _GrassDark, noise.r);
-				int r = 10;
-				float4 rockCol = lerp(_RockLight, _RockDark, (int)(noise2.r*r) / float(r));
-				float n = (noise.r-0.4) * _Test;
+				// --- HEIGHT-BASED BLENDING: green on top, brown below ---
+				float grassLine = 0.0;   // Lower = grass appears lower, raise if needed
+				float blendZone = 1.5;   // Higher = smoother blend, lower = sharper
+				float t = saturate((IN.worldPos.y - grassLine) / blendZone);
 
-				float rockWeight = smoothstep(0.24 + n, 0.24 + 0.001 + n, steepness);
-				o.Albedo = lerp(grassCol, rockCol, rockWeight);
-				//o.Albedo = steepness > _Test;
-				metallic = lerp(0, rockMetalStrength, rockWeight);
+				// Set these colors in your material for best results!
+				float4 grassCol = lerp(_GrassLight, _GrassDark, noise.r); // green
+				float4 dirtCol = lerp(_RockLight, _RockDark, noise2.r);   // brown
+
+				o.Albedo = lerp(dirtCol, grassCol, t);
+				metallic = lerp(rockMetalStrength, 0, t);
 			}
-
-			//o.Albedo = dstFromCentre > oceanRadius;
-
-			
-			//o.Albedo = metallic;
 
 			o.Metallic = metallic;
 			o.Smoothness = _Glossiness;
