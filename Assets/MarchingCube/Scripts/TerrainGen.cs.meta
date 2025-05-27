@@ -1,2 +1,18 @@
 fileFormatVersion: 2
 guid: 98e77b5a31ba10143bc6e7c723d2e4a8
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - meshCompute: {instanceID: 0}
+  - densityCompute: {instanceID: 0}
+  - blurCompute: {instanceID: 0}
+  - editCompute: {instanceID: 0}
+  - material: {fileID: 2100000, guid: faee7482d5f69d54e99c1a5f5a1ae264, type: 2}
+  - rawDensityTexture: {instanceID: 0}
+  - processedDensityTexture: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
