@@ -4,11 +4,11 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - meshCompute: {instanceID: 0}
-  - densityCompute: {instanceID: 0}
-  - blurCompute: {instanceID: 0}
-  - editCompute: {instanceID: 0}
-  - material: {fileID: 2100000, guid: faee7482d5f69d54e99c1a5f5a1ae264, type: 2}
+  - meshCompute: {fileID: 7200000, guid: cdd647ae6cdf1884784f00b2d886710c, type: 3}
+  - densityCompute: {fileID: 7200000, guid: 010ef0f8809d01043a14d2b2e56810c1, type: 3}
+  - blurCompute: {fileID: 7200000, guid: f07528ffd36f7df4ab037a391fc9e17c, type: 3}
+  - editCompute: {fileID: 7200000, guid: 6254c1ac64bee1b4ab60ea129f6b01c1, type: 3}
+  - material: {fileID: 2100000, guid: 9f4347a8793c928459ad74e6f213d611, type: 2}
   - rawDensityTexture: {instanceID: 0}
   - processedDensityTexture: {instanceID: 0}
   executionOrder: 0

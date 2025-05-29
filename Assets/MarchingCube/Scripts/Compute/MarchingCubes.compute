@@ -1,5 +1,6 @@
 ﻿#pragma kernel ProcessCube
-#include "/Includes/MarchTables.compute"
+#include "Includes/MarchTables.compute"
+#include "Includes/Noise.compute"
 
 struct Vertex {
 	float3 position;

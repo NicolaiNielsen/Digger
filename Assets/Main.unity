@@ -291,6 +291,51 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &343005263
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 343005265}
+  - component: {fileID: 343005264}
+  m_Layer: 0
+  m_Name: Noise
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &343005264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343005263}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5a9651a620a79a4eb27c68e8a2cbbb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  marchTablesFile: {fileID: 4900000, guid: 6254c1ac64bee1b4ab60ea129f6b01c1, type: 3}
+--- !u!4 &343005265
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343005263}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 140.99464, y: -11.2799015, z: 105.57078}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -736,7 +781,7 @@ MonoBehaviour:
   numPointsPerAxis: 50
   boundsSize: 500
   isoLevel: 0
-  useFlatShading: 0
+  useFlatShading: 1
   noiseScale: 0.75
   noiseHeightMultiplier: 0.075
   blurMap: 0
@@ -745,7 +790,7 @@ MonoBehaviour:
   densityCompute: {fileID: 7200000, guid: 010ef0f8809d01043a14d2b2e56810c1, type: 3}
   blurCompute: {fileID: 7200000, guid: f07528ffd36f7df4ab037a391fc9e17c, type: 3}
   editCompute: {fileID: 7200000, guid: a4501189317bb624f975926c78d89478, type: 3}
-  material: {fileID: 2100000, guid: e2a9c2dc9d5beb1428620197d0b1aabd, type: 2}
+  material: {fileID: 2100000, guid: 9f4347a8793c928459ad74e6f213d611, type: 2}
   rawDensityTexture: {fileID: 0}
   processedDensityTexture: {fileID: 0}
 --- !u!1 &1651815536
@@ -1054,3 +1099,4 @@ SceneRoots:
   - {fileID: 975198232}
   - {fileID: 74058614}
   - {fileID: 1619588364}
+  - {fileID: 343005265}

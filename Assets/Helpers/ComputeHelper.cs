@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using ComputeShaderUtility;
@@ -192,7 +191,10 @@ public static class ComputeHelper
 	/// Copy the contents of one render texture into another. Assumes textures are the same size.
 	public static void CopyRenderTexture3D(Texture source, RenderTexture target)
 	{
+		Debug.Log("What is my source" + source);
+		Debug.Log("What is my target" + target);
 		LoadComputeShader(ref copy3DCompute, "Copy3D");
+		Debug.Log("COmpute shader laoded");
 		copy3DCompute.SetInts("dimensions", target.width, target.height, target.volumeDepth);
 		copy3DCompute.SetTexture(0, "Source", source);
 		copy3DCompute.SetTexture(0, "Target", target);
@@ -332,7 +334,16 @@ public static class ComputeHelper
 	{
 		if (shader == null)
 		{
+			Debug.Log($"Trying to load ComputeShader: Resources/{name}.compute");
 			shader = (ComputeShader)Resources.Load(name);
+			if (shader == null)
+			{
+				Debug.LogError($"Failed to load ComputeShader: Resources/{name}.compute. Make sure the file exists at Assets/Resources/{name}.compute and is imported as a ComputeShader.");
+			}
+			else
+			{
+				Debug.Log($"Successfully loaded ComputeShader: {name}");
+			}
 		}
 	}
 

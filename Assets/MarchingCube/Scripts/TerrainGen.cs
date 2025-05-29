@@ -8,9 +8,9 @@ public class TerrainGen : MonoBehaviour
 {
 
 	[Header("Init Settings")]
-	public int numChunks = 4;
+	public int numChunks = 1;
 
-	public int numPointsPerAxis = 10;
+	public int numPointsPerAxis = 1;
 	public float boundsSize = 10;
 	public float isoLevel = 0f;
 	public bool useFlatShading;
@@ -54,20 +54,30 @@ public class TerrainGen : MonoBehaviour
 		var sw = System.Diagnostics.Stopwatch.StartNew();
 		GenerateAllChunks();
 		Debug.Log("Generation Time: " + sw.ElapsedMilliseconds + " ms");
-
 		ComputeHelper.CreateRenderTexture3D(ref originalMap, processedDensityTexture);
-		ComputeHelper.CopyRenderTexture3D(processedDensityTexture, originalMap);
+		if (processedDensityTexture == null) {
+			Debug.LogError("processedDensityTexture is null!");
+		}
+		if (originalMap == null)
+		{
+			Debug.LogError("originalMap is null!");
+		}
+
+	
+		if (processedDensityTexture != null && originalMap != null)
+		{
+			ComputeHelper.CopyRenderTexture3D(processedDensityTexture, originalMap);
+		}
 	}
 
 	void InitTextures()
 	{
 
-		// Explanation of texture size:
-		// Each pixel maps to one point.
-		// Each chunk has "numPointsPerAxis" points along each axis
+		// Explanation of texture si½rAxis" points along each axis
 		// The last points of each chunk overlap in space with the first points of the next chunk
 		// Therefore we need one fewer pixel than points for each added chunk
 		int size = numChunks * (numPointsPerAxis - 1) + 1;
+		//Creates a 3DTexture with rawDesinityTexture which is size x size x size in size
 		Create3DTexture(ref rawDensityTexture, size, "Raw Density Texture");
 		Create3DTexture(ref processedDensityTexture, size, "Processed Density Texture");
 
