@@ -1,16 +1,19 @@
 #pragma kernel CSMain //This is the function that should be run using dispatch
 #include "/Includes/Noise.compute"
-//WHy dont Includes work?
-//include "Includes/MarchTables.compute"
-//We store the each density in a read/write
+
+
 //data structure 3d grid of desnitivy values
 //(0,0,0) = 0,5
 //(0,0,1) = 0,52
+
 RWTexture3D<float> DensityTexture;
 //Note sure i fully understand
 
 int textureSize;
-float planetSize;
+//float planetSize;
+float sizeX;
+float sizeY;
+float sizeZ;
 float noiseScale;
 float noiseHeightMultiplier;
 
@@ -32,21 +35,23 @@ float fbm(int numLayers, float lacunarity, float persistence, float scale, float
 }
 
 float calculateDensity(int3 cell) {
-	float3 worldPos = (cell / float(textureSize-1.0) - 0.5f) * planetSize;
+    float3 worldPos = float3(
+    (cell.x / (textureSize - 1.0) - 0.5f) * sizeX,
+    (cell.y / (textureSize - 1.0) - 0.5f) * sizeY,
+    (cell.z / (textureSize - 1.0) - 0.5f) * sizeZ
+);
 
-	float halfS = planetSize / 2;
-	float maxD = length(float3(halfS,halfS,halfS));
+    // Set the height of the ground (0 = middle, negative = lower, positive = higher)
+    float surfaceHeight = 0;
 
-	float fudge = 1;
+    // Flat ground: below the surface is solid, above is air
+    float density = worldPos.y - surfaceHeight;
 
-	float density = length(worldPos) / (maxD + fudge) - 0.5;
+    // Add bumps/hills with noise
+    float noise = fbm(6, 2, 0.5, noiseScale, worldPos) * noiseHeightMultiplier;
+    density += noise;
 
-	// Noise
-	float noise = fbm(6, 2, 0.5, noiseScale, worldPos) * noiseHeightMultiplier;
-
-	density += noise;
-
-	return density;
+    return density;
 }
 
 [numthreads(8,8,8)]

@@ -10,6 +10,10 @@ public class TerrainGen : MonoBehaviour
 	[Header("Init Settings")]
 	public int numChunks = 1;
 
+	public float sizeX = 10;
+	public float sizeY = 50;
+	public float sizeZ = 10;
+
 	public int numPointsPerAxis = 1;
 	public float boundsSize = 10;
 	public float isoLevel = 0f;
@@ -124,8 +128,10 @@ public class TerrainGen : MonoBehaviour
 		int textureSize = rawDensityTexture.width;
 
 		densityCompute.SetInt("textureSize", textureSize);
-
-		densityCompute.SetFloat("planetSize", boundsSize);
+		densityCompute.SetFloat("sizeX", sizeX);
+		densityCompute.SetFloat("sizeY", sizeY);
+		densityCompute.SetFloat("sizeZ", sizeZ);
+		//densityCompute.SetFloat("planetSize", boundsSize);
 		densityCompute.SetFloat("noiseHeightMultiplier", noiseHeightMultiplier);
 		densityCompute.SetFloat("noiseScale", noiseScale);
 
