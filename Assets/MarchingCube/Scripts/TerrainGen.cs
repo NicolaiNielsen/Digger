@@ -9,13 +9,13 @@ public class TerrainGen : MonoBehaviour
 
 	[Header("Init Settings")]
 	public int numChunks = 1;
+	public int numPointsPerAxis = 2;
+	public float boundsSize = 1;
 
-	public float sizeX = 10;
-	public float sizeY = 50;
-	public float sizeZ = 10;
+	public float width;
+	public float length;
+	public float depth;
 
-	public int numPointsPerAxis = 1;
-	public float boundsSize = 10;
 	public float isoLevel = 0f;
 	public bool useFlatShading;
 
@@ -50,13 +50,16 @@ public class TerrainGen : MonoBehaviour
 
 	void Start()
 	{
+		//Initialize textures so it GPU optimized
 		InitTextures();
+
 		CreateBuffers();
 
 		CreateChunks();
 
 		var sw = System.Diagnostics.Stopwatch.StartNew();
 		GenerateAllChunks();
+		
 		Debug.Log("Generation Time: " + sw.ElapsedMilliseconds + " ms");
 		ComputeHelper.CreateRenderTexture3D(ref originalMap, processedDensityTexture);
 		if (processedDensityTexture == null) {
@@ -77,11 +80,13 @@ public class TerrainGen : MonoBehaviour
 	void InitTextures()
 	{
 
-		// Explanation of texture si½rAxis" points along each axis
-		// The last points of each chunk overlap in space with the first points of the next chunk
-		// Therefore we need one fewer pixel than points for each added chunk
-		int size = numChunks * (numPointsPerAxis - 1) + 1;
+
+		//Calculates how many points we need along one axis, we create cubes with even level of detail so no need for x,y,z
 		//Creates a 3DTexture with rawDesinityTexture which is size x size x size in size
+		//one cube is 2*2*2 = 8 size
+		int size = numChunks * (numPointsPerAxis - 1) + 1;
+		//creates something along the lines new float[,,] density = new float[2, 2, 2];
+		//A GPU optimized 3D array to store points
 		Create3DTexture(ref rawDensityTexture, size, "Raw Density Texture");
 		Create3DTexture(ref processedDensityTexture, size, "Processed Density Texture");
 
@@ -128,10 +133,8 @@ public class TerrainGen : MonoBehaviour
 		int textureSize = rawDensityTexture.width;
 
 		densityCompute.SetInt("textureSize", textureSize);
-		densityCompute.SetFloat("sizeX", sizeX);
-		densityCompute.SetFloat("sizeY", sizeY);
-		densityCompute.SetFloat("sizeZ", sizeZ);
-		//densityCompute.SetFloat("planetSize", boundsSize);
+
+		densityCompute.SetFloat("planetSize", boundsSize);
 		densityCompute.SetFloat("noiseHeightMultiplier", noiseHeightMultiplier);
 		densityCompute.SetFloat("noiseScale", noiseScale);
 
@@ -207,6 +210,7 @@ public class TerrainGen : MonoBehaviour
 
 	void CreateBuffers()
 	{
+		//Creates block of memeory on the GPU
 		int numPoints = numPointsPerAxis * numPointsPerAxis * numPointsPerAxis;
 		int numVoxelsPerAxis = numPointsPerAxis - 1;
 		int numVoxels = numVoxelsPerAxis * numVoxelsPerAxis * numVoxelsPerAxis;

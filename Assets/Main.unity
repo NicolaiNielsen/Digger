@@ -624,15 +624,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98e77b5a31ba10143bc6e7c723d2e4a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numChunks: 10
-  numPointsPerAxis: 50
-  boundsSize: 50
+  numChunks: 5
+  numPointsPerAxis: 20
+  boundsSize: 20
+  width: 0
+  length: 0
+  depth: 0
   isoLevel: 0
   useFlatShading: 1
-  noiseScale: 1.08
-  noiseHeightMultiplier: 1.24
-  blurMap: 0
-  blurRadius: 3
+  noiseScale: 0.13
+  noiseHeightMultiplier: 0.3
+  blurMap: 1
+  blurRadius: 1
   meshCompute: {fileID: 7200000, guid: cdd647ae6cdf1884784f00b2d886710c, type: 3}
   densityCompute: {fileID: 7200000, guid: 010ef0f8809d01043a14d2b2e56810c1, type: 3}
   blurCompute: {fileID: 7200000, guid: f07528ffd36f7df4ab037a391fc9e17c, type: 3}
@@ -777,6 +780,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1651815536}
   m_CullTransparentMesh: 1
+--- !u!1 &1692711156
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1692711157}
+  m_Layer: 0
+  m_Name: Terraforming
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1692711157
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1692711156}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.5479012, y: -5.8264084, z: 11.216373}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1735775456
 GameObject:
   m_ObjectHideFlags: 0
@@ -945,3 +979,4 @@ SceneRoots:
   - {fileID: 124342266}
   - {fileID: 1619588364}
   - {fileID: 1065448764}
+  - {fileID: 1692711157}

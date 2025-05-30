@@ -10,10 +10,7 @@ RWTexture3D<float> DensityTexture;
 //Note sure i fully understand
 
 int textureSize;
-//float planetSize;
-float sizeX;
-float sizeY;
-float sizeZ;
+float planetSize;
 float noiseScale;
 float noiseHeightMultiplier;
 
@@ -35,11 +32,7 @@ float fbm(int numLayers, float lacunarity, float persistence, float scale, float
 }
 
 float calculateDensity(int3 cell) {
-    float3 worldPos = float3(
-    (cell.x / (textureSize - 1.0) - 0.5f) * sizeX,
-    (cell.y / (textureSize - 1.0) - 0.5f) * sizeY,
-    (cell.z / (textureSize - 1.0) - 0.5f) * sizeZ
-);
+float3 worldPos = (cell / float(textureSize - 1.0) - 0.5f) * planetSize;
 
     // Set the height of the ground (0 = middle, negative = lower, positive = higher)
     float surfaceHeight = 0;
