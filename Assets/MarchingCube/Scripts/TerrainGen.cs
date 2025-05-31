@@ -52,14 +52,14 @@ public class TerrainGen : MonoBehaviour
 	{
 		//Initialize textures so it GPU optimized
 		InitTextures();
-
+		//Creates a buffer which is a memory block on the CPU
 		CreateBuffers();
-
+		//Creates a chunk 
 		CreateChunks();
 
 		var sw = System.Diagnostics.Stopwatch.StartNew();
 		GenerateAllChunks();
-		
+
 		Debug.Log("Generation Time: " + sw.ElapsedMilliseconds + " ms");
 		ComputeHelper.CreateRenderTexture3D(ref originalMap, processedDensityTexture);
 		if (processedDensityTexture == null) {
@@ -79,8 +79,6 @@ public class TerrainGen : MonoBehaviour
 
 	void InitTextures()
 	{
-
-
 		//Calculates how many points we need along one axis, we create cubes with even level of detail so no need for x,y,z
 		//Creates a 3DTexture with rawDesinityTexture which is size x size x size in size
 		//one cube is 2*2*2 = 8 size
@@ -89,7 +87,7 @@ public class TerrainGen : MonoBehaviour
 		//A GPU optimized 3D array to store points
 		Create3DTexture(ref rawDensityTexture, size, "Raw Density Texture");
 		Create3DTexture(ref processedDensityTexture, size, "Processed Density Texture");
-
+		//Supposed to smooth the edges
 		if (!blurMap)
 		{
 			processedDensityTexture = rawDensityTexture;
@@ -135,8 +133,8 @@ public class TerrainGen : MonoBehaviour
 		densityCompute.SetInt("textureSize", textureSize);
 
 		densityCompute.SetFloat("planetSize", boundsSize);
-		densityCompute.SetFloat("noiseHeightMultiplier", noiseHeightMultiplier);
-		densityCompute.SetFloat("noiseScale", noiseScale);
+		densityCompute.SetFloat("noiseHeightMultiplier", 0f);
+		densityCompute.SetFloat("noiseScale", 0f);
 
 		ComputeHelper.Dispatch(densityCompute, textureSize, textureSize, textureSize);
 
@@ -157,13 +155,9 @@ public class TerrainGen : MonoBehaviour
 
 	void GenerateChunk(Chunk chunk)
 	{
-
-
 		// Marching cubes
 		int numVoxelsPerAxis = numPointsPerAxis - 1;
 		int marchKernel = 0;
-
-
 		meshCompute.SetInt("textureSize", processedDensityTexture.width);
 		meshCompute.SetInt("numPointsPerAxis", numPointsPerAxis);
 		meshCompute.SetFloat("isoLevel", isoLevel);
@@ -258,6 +252,8 @@ public class TerrainGen : MonoBehaviour
 					GameObject meshHolder = new GameObject($"Chunk ({x}, {y}, {z})");
 					meshHolder.transform.parent = transform;
 					meshHolder.layer = gameObject.layer;
+					meshHolder.transform.tag = "Diggable";
+					meshHolder.layer = LayerMask.NameToLayer("Interactable");
 
 					Chunk chunk = new Chunk(coord, centre, chunkSize, numPointsPerAxis, meshHolder);
 					chunk.SetMaterial(material);

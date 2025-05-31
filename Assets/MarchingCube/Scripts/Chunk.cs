@@ -53,7 +53,6 @@ public class Chunk
 
 	public void CreateMesh(VertexData[] vertexData, int numVertices, bool useFlatShading)
 	{
-
 		vertexIndexMap.Clear();
 		processedVertices.Clear();
 		processedNormals.Clear();

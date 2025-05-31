@@ -10,8 +10,9 @@ public class Dig : Interactable
 
         if (Physics.Raycast(ray, out hit, 3f, LayerMask.GetMask("Interactable")))
         {
-            // Check if the hit object is a chunk
-            // and if it has a Chunk component  
+
+
+
 
             Chunk cube = hit.collider.GetComponent<Chunk>();
             if (cube != null)

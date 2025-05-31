@@ -471,7 +471,7 @@ Transform:
   m_GameObject: {fileID: 1065448761}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -6.95, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -592,7 +592,7 @@ GameObject:
   - component: {fileID: 1619588365}
   m_Layer: 0
   m_Name: Terrain Generator
-  m_TagString: Untagged
+  m_TagString: Diggable
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -624,17 +624,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98e77b5a31ba10143bc6e7c723d2e4a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numChunks: 5
-  numPointsPerAxis: 20
-  boundsSize: 20
+  numChunks: 10
+  numPointsPerAxis: 35
+  boundsSize: 10
   width: 0
   length: 0
   depth: 0
   isoLevel: 0
-  useFlatShading: 1
-  noiseScale: 0.13
-  noiseHeightMultiplier: 0.3
-  blurMap: 1
+  useFlatShading: 0
+  noiseScale: 0
+  noiseHeightMultiplier: 0
+  blurMap: 0
   blurRadius: 1
   meshCompute: {fileID: 7200000, guid: cdd647ae6cdf1884784f00b2d886710c, type: 3}
   densityCompute: {fileID: 7200000, guid: 010ef0f8809d01043a14d2b2e56810c1, type: 3}
@@ -780,37 +780,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1651815536}
   m_CullTransparentMesh: 1
---- !u!1 &1692711156
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1692711157}
-  m_Layer: 0
-  m_Name: Terraforming
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1692711157
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1692711156}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.5479012, y: -5.8264084, z: 11.216373}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1735775456
 GameObject:
   m_ObjectHideFlags: 0
@@ -912,6 +881,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4631199063076625011, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
+      propertyPath: mask.m_Bits
+      value: 64
+      objectReference: {fileID: 0}
     - target: {fileID: 4735328652354295582, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
       propertyPath: mask.m_Bits
       value: 64
@@ -960,6 +933,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 6792751524081892027, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -979,4 +956,3 @@ SceneRoots:
   - {fileID: 124342266}
   - {fileID: 1619588364}
   - {fileID: 1065448764}
-  - {fileID: 1692711157}
