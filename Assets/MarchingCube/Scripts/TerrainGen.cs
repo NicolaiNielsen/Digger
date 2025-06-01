@@ -24,6 +24,8 @@ public class TerrainGen : MonoBehaviour
 	public bool blurMap;
 	public int blurRadius = 3;
 
+	public Vector3 chunkOrigin = Vector3.zero;
+
 	[Header("References")]
 	public ComputeShader meshCompute;
 	public ComputeShader densityCompute;
@@ -166,6 +168,7 @@ public class TerrainGen : MonoBehaviour
 		meshCompute.SetBuffer(marchKernel, "triangles", triangleBuffer);
 
 		Vector3 chunkCoord = (Vector3)chunk.id * (numPointsPerAxis - 1);
+		Debug.Log(chunkCoord);
 		meshCompute.SetVector("chunkCoord", chunkCoord);
 
 		ComputeHelper.Dispatch(meshCompute, numVoxelsPerAxis, numVoxelsPerAxis, numVoxelsPerAxis, marchKernel);
@@ -243,11 +246,16 @@ public class TerrainGen : MonoBehaviour
 			{
 				for (int z = 0; z < numChunks; z++)
 				{
-					Vector3Int coord = new Vector3Int(x, y, z);
+
+					Debug.Log(chunkOrigin);
+					Debug.Log(chunkOrigin.x + x);
+					Debug.Log(chunkOrigin.y + y);
+					Debug.Log(chunkOrigin.z + z);
+					Vector3Int coord = new Vector3Int((int)(chunkOrigin.x + x), (int)(chunkOrigin.y + y), (int)(chunkOrigin.z + z));
 					float posX = (-(numChunks - 1f) / 2 + x) * chunkSize;
 					float posY = (-(numChunks - 1f) / 2 + y) * chunkSize;
 					float posZ = (-(numChunks - 1f) / 2 + z) * chunkSize;
-					Vector3 centre = new Vector3(posX, posY, posZ);
+					Vector3 centre = new Vector3(posX, posY, posZ) + chunkOrigin;
 
 					GameObject meshHolder = new GameObject($"Chunk ({x}, {y}, {z})");
 					meshHolder.transform.parent = transform;
