@@ -8,6 +8,7 @@ public class TerrainGen : MonoBehaviour
 {
 
 	[Header("Init Settings")]
+	public Vector3 chunkOrigin = Vector3.zero;
 	public int numChunks = 1;
 	public int numPointsPerAxis = 2;
 	public float boundsSize = 1;
@@ -24,15 +25,12 @@ public class TerrainGen : MonoBehaviour
 	public bool blurMap;
 	public int blurRadius = 3;
 
-	public Vector3 chunkOrigin = Vector3.zero;
-
 	[Header("References")]
 	public ComputeShader meshCompute;
 	public ComputeShader densityCompute;
 	public ComputeShader blurCompute;
 	public ComputeShader editCompute;
 	public Material material;
-
 
 	// Private
 	ComputeBuffer triangleBuffer;
@@ -52,6 +50,7 @@ public class TerrainGen : MonoBehaviour
 
 	void Start()
 	{
+		meshCompute.SetVector("chunkOrigin", chunkOrigin);
 		//Initialize textures so it GPU optimized
 		InitTextures();
 		//Creates a buffer which is a memory block on the CPU
@@ -247,15 +246,11 @@ public class TerrainGen : MonoBehaviour
 				for (int z = 0; z < numChunks; z++)
 				{
 
-					Debug.Log(chunkOrigin);
-					Debug.Log(chunkOrigin.x + x);
-					Debug.Log(chunkOrigin.y + y);
-					Debug.Log(chunkOrigin.z + z);
-					Vector3Int coord = new Vector3Int((int)(chunkOrigin.x + x), (int)(chunkOrigin.y + y), (int)(chunkOrigin.z + z));
+					Vector3Int coord = new Vector3Int(x,y,z);
 					float posX = (-(numChunks - 1f) / 2 + x) * chunkSize;
 					float posY = (-(numChunks - 1f) / 2 + y) * chunkSize;
 					float posZ = (-(numChunks - 1f) / 2 + z) * chunkSize;
-					Vector3 centre = new Vector3(posX, posY, posZ) + chunkOrigin;
+					Vector3 centre = new Vector3(posX, posY, posZ);
 
 					GameObject meshHolder = new GameObject($"Chunk ({x}, {y}, {z})");
 					meshHolder.transform.parent = transform;

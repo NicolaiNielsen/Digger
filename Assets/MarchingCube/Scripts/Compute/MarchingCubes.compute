@@ -17,7 +17,7 @@ struct Triangle {
 AppendStructuredBuffer<Triangle> triangles;
 RWTexture3D<float> DensityTexture;
 int textureSize;
-
+float3 chunkOrigin;
 int numPointsPerAxis;
 float planetSize;
 float isoLevel;
@@ -61,7 +61,7 @@ Vertex createVertex(int3 coordA, int3 coordB) {
 
 	// Interpolate between the two corner points based on the density
 	float t = (isoLevel - densityA) / (densityB - densityA);
-	float3 position = posA + t * (posB - posA);
+	float3 position = posA + t * (posB - posA) + chunkOrigin;
 
 	// Normal:
 	float3 normalA = calculateNormal(coordA);
