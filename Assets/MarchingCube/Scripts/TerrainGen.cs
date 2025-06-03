@@ -11,14 +11,10 @@ public class TerrainGen : MonoBehaviour
 	public int numChunks = 1;
 	public int numPointsPerAxis = 2;
 	public float boundsSize = 1;
-	public float boundsSizeX = 2f;
-	public float boundsSizeY = 2f;
-	public float boundsSizeZ = 2f;
+	public float chunkSize = 1;
 	public int numChunksX = 2;
-	public int numChunksY = 10;
+	public int numChunksY = 2;
 	public int numChunksZ = 2;
-	
-
 	public float isoLevel = 0f;
 	public bool useFlatShading;
 
@@ -92,7 +88,7 @@ public class TerrainGen : MonoBehaviour
 		//creates something along the lines new float[,,] density = new float[2, 2, 2];
 		//A GPU optimized 3D array to store points
 		Create3DTexture(ref rawDensityTexture, sizeX, sizeY, sizeZ, "Raw Density Texture");
-		Create3DTexture(ref processedDensityTexture, numChunksX, numChunksY, numChunksZ, "Processed Density Texture");
+		Create3DTexture(ref processedDensityTexture, sizeX, sizeY, sizeZ, "Processed Density Texture");
 		//Supposed to smooth the edges
 		if (!blurMap)
 		{
@@ -133,19 +129,19 @@ public class TerrainGen : MonoBehaviour
 
 	void ComputeDensity()
 	{
-		// Get points (each point is a vector4: xyz = position, w = density)
-		int textureSize = rawDensityTexture.width;
+			int sizeX = rawDensityTexture.width;
+			int sizeY = rawDensityTexture.height;
+			int sizeZ = rawDensityTexture.volumeDepth;
+			densityCompute.SetInts("textureSize", sizeX, sizeY, sizeZ);
 
-		densityCompute.SetInt("textureSize", textureSize);
+			densityCompute.SetFloat("chunkSize", chunkSize);
+			densityCompute.SetFloat("noiseHeightMultiplier", 0f);
+			densityCompute.SetFloat("noiseScale", 0f);
 
-		densityCompute.SetFloat("planetSize", boundsSize);
-		densityCompute.SetFloat("noiseHeightMultiplier", 0f);
-		densityCompute.SetFloat("noiseScale", 0f);
+			ComputeHelper.Dispatch(densityCompute, sizeX, sizeY, sizeZ);
 
-		ComputeHelper.Dispatch(densityCompute, textureSize, textureSize, textureSize);
-
-		ProcessDensityMap();
-	}
+			ProcessDensityMap();	
+		}
 
 	void ProcessDensityMap()
 	{
@@ -237,47 +233,38 @@ public class TerrainGen : MonoBehaviour
 	}
 
 
-void CreateChunks()
-{
-    chunks = new Chunk[numChunksX * numChunksY * numChunksZ];
+	void CreateChunks()
+	{
+		chunks = new Chunk[numChunksX * numChunksY * numChunksZ];
+		//float chunkSize = (boundsSize) / numChunks;
+		int i = 0;
 
-    // Calculate chunk size per axis
-    float chunkSizeX = boundsSizeX / numChunksX;
-    float chunkSizeY = boundsSizeY / numChunksY;
-    float chunkSizeZ = boundsSizeZ / numChunksZ;
+		for (int y = 0; y < numChunksY; y++)
+		{
+			for (int x = 0; x < numChunksX; x++)
+			{
+				for (int z = 0; z < numChunksZ; z++)
+				{
+					Vector3Int coord = new Vector3Int(x, y, z);
+					float posX = (-(numChunksX - 1f) / 2 + x) * chunkSize;
+					float posY = (-(numChunksY - 1f) / 2 + y) * chunkSize;
+					float posZ = (-(numChunksZ - 1f) / 2 + z) * chunkSize;
+					Vector3 centre = new Vector3(posX, posY, posZ);
 
-    int i = 0;
+					GameObject meshHolder = new GameObject($"Chunk ({x}, {y}, {z})");
+					meshHolder.transform.parent = transform;
+					meshHolder.layer = gameObject.layer;
+					meshHolder.transform.tag = "Diggable";
+					meshHolder.layer = LayerMask.NameToLayer("Interactable");
 
-    for (int y = 0; y < numChunksY; y++)
-    {
-        for (int x = 0; x < numChunksX; x++)
-        {
-            for (int z = 0; z < numChunksZ; z++)
-            {
-                Vector3Int coord = new Vector3Int(x, y, z);
-                // Center the chunks around origin
-                float posX = (-(numChunksX - 1f) / 2f + x) * chunkSizeX;
-                float posY = (-(numChunksY - 1f) / 2f + y) * chunkSizeY;
-                float posZ = (-(numChunksZ - 1f) / 2f + z) * chunkSizeZ;
-                Vector3 centre = new Vector3(posX, posY, posZ);
-
-                GameObject meshHolder = new GameObject($"Chunk ({x}, {y}, {z})");
-                meshHolder.transform.parent = transform;
-                meshHolder.layer = gameObject.layer;
-                meshHolder.tag = "Diggable";
-                meshHolder.layer = LayerMask.NameToLayer("Interactable");
-
-                // Pass correct chunk sizes on each axis if your Chunk class supports it, else you can pass average or chunkSizeX as before
-                float chunkSize = Mathf.Max(chunkSizeX, Mathf.Max(chunkSizeY, chunkSizeZ)); 
-                Chunk chunk = new Chunk(coord, centre, chunkSize, numPointsPerAxis, meshHolder);
-                chunk.SetMaterial(material);
-                chunks[i] = chunk;
-                i++;
-            }
-        }
-    }
-}
-
+					Chunk chunk = new Chunk(coord, centre, chunkSize, numPointsPerAxis, meshHolder);
+					chunk.SetMaterial(material);
+					chunks[i] = chunk;
+					i++;
+				}
+			}
+		}
+	}
 
 
 	public void Terraform(Vector3 point, float weight, float radius)
@@ -373,4 +360,6 @@ void CreateChunks()
             chunk.DrawBoundsGizmo(chunkBoundsColor);
         }
     }
+
+
 }

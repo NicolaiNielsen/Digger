@@ -624,12 +624,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98e77b5a31ba10143bc6e7c723d2e4a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numChunks: 10
+  numChunks: 2
   numPointsPerAxis: 35
   boundsSize: 10
-  width: 0
-  length: 0
-  depth: 0
+  chunkSize: 5
+  numChunksX: 2
+  numChunksY: 2
+  numChunksZ: 2
   isoLevel: 0
   useFlatShading: 0
   noiseScale: 0

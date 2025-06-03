@@ -9,8 +9,8 @@
 RWTexture3D<float> DensityTexture;
 //Note sure i fully understand
 
-int textureSize;
-float planetSize;
+int3 textureSize;
+float chunkSize;
 float noiseScale;
 float noiseHeightMultiplier;
 
@@ -32,7 +32,12 @@ float fbm(int numLayers, float lacunarity, float persistence, float scale, float
 }
 
 float calculateDensity(int3 cell) {
-float3 worldPos = (cell / float(textureSize - 1.0) - 0.5f) * planetSize;
+	float3 normalizedPos = float3(
+    cell.x / (textureSize.x - 1.0),
+    cell.y / (textureSize.y - 1.0),
+    cell.z / (textureSize.z - 1.0)
+);
+	float3 worldPos = (normalizedPos - 0.5f) * chunkSize;
 
     // Set the height of the ground (0 = middle, negative = lower, positive = higher)
     float surfaceHeight = 0;
@@ -41,8 +46,8 @@ float3 worldPos = (cell / float(textureSize - 1.0) - 0.5f) * planetSize;
     float density = worldPos.y - surfaceHeight;
 
     // Add bumps/hills with noise
-    float noise = fbm(6, 2, 0.5, noiseScale, worldPos) * noiseHeightMultiplier;
-    density += noise;
+    //float noise = fbm(6, 2, 0.5, noiseScale, worldPos) * noiseHeightMultiplier;
+    //density += noise;
 
     return density;
 }
@@ -50,20 +55,15 @@ float3 worldPos = (cell / float(textureSize - 1.0) - 0.5f) * planetSize;
 [numthreads(8,8,8)]
 void CSMain (int3 id : SV_DispatchThreadID)
 {
-	if (id.x >= textureSize || id.y >= textureSize || id.z >= textureSize) {
-		return;
-	}
+	if (id.x >= textureSize.x || id.y >= textureSize.y || id.z >= textureSize.z) return;
 
 	float density = 0;
 
 	const int b = 1;
-	if (id.x >= textureSize-b || id.y >= textureSize-b || id.z >= textureSize-b) {
+	if (id.x >= textureSize.x - b || id.y >= textureSize.y - b || id.z >= textureSize.z - b ||
+		id.x < b || id.y < b || id.z < b) {
 		density = 1;
-	}
-	else if (id.x <= b || id.y <= b || id.z <=b) {
-		density = 1;
-	}
-	else {
+	} else {
 		density = calculateDensity(id);
 	}
 
