@@ -11,10 +11,13 @@ public class TerrainGen : MonoBehaviour
 	public int numChunks = 1;
 	public int numPointsPerAxis = 2;
 	public float boundsSize = 1;
-
-	public float width;
-	public float length;
-	public float depth;
+	public float boundsSizeX = 2f;
+	public float boundsSizeY = 2f;
+	public float boundsSizeZ = 2f;
+	public int numChunksX = 2;
+	public int numChunksY = 10;
+	public int numChunksZ = 2;
+	
 
 	public float isoLevel = 0f;
 	public bool useFlatShading;
@@ -62,7 +65,8 @@ public class TerrainGen : MonoBehaviour
 
 		Debug.Log("Generation Time: " + sw.ElapsedMilliseconds + " ms");
 		ComputeHelper.CreateRenderTexture3D(ref originalMap, processedDensityTexture);
-		if (processedDensityTexture == null) {
+		if (processedDensityTexture == null)
+		{
 			Debug.LogError("processedDensityTexture is null!");
 		}
 		if (originalMap == null)
@@ -70,7 +74,7 @@ public class TerrainGen : MonoBehaviour
 			Debug.LogError("originalMap is null!");
 		}
 
-	
+
 		if (processedDensityTexture != null && originalMap != null)
 		{
 			ComputeHelper.CopyRenderTexture3D(processedDensityTexture, originalMap);
@@ -82,11 +86,13 @@ public class TerrainGen : MonoBehaviour
 		//Calculates how many points we need along one axis, we create cubes with even level of detail so no need for x,y,z
 		//Creates a 3DTexture with rawDesinityTexture which is size x size x size in size
 		//one cube is 2*2*2 = 8 size
-		int size = numChunks * (numPointsPerAxis - 1) + 1;
+		int sizeX = numChunksX * (numPointsPerAxis - 1) + 1;
+		int sizeY = numChunksY * (numPointsPerAxis - 1) + 1;
+		int sizeZ = numChunksZ * (numPointsPerAxis - 1) + 1;
 		//creates something along the lines new float[,,] density = new float[2, 2, 2];
 		//A GPU optimized 3D array to store points
-		Create3DTexture(ref rawDensityTexture, size, "Raw Density Texture");
-		Create3DTexture(ref processedDensityTexture, size, "Processed Density Texture");
+		Create3DTexture(ref rawDensityTexture, sizeX, sizeY, sizeZ, "Raw Density Texture");
+		Create3DTexture(ref processedDensityTexture, numChunksX, numChunksY, numChunksZ, "Processed Density Texture");
 		//Supposed to smooth the edges
 		if (!blurMap)
 		{
@@ -231,38 +237,47 @@ public class TerrainGen : MonoBehaviour
 	}
 
 
-	void CreateChunks()
-	{
-		chunks = new Chunk[numChunks * numChunks * numChunks];
-		float chunkSize = (boundsSize) / numChunks;
-		int i = 0;
+void CreateChunks()
+{
+    chunks = new Chunk[numChunksX * numChunksY * numChunksZ];
 
-		for (int y = 0; y < numChunks; y++)
-		{
-			for (int x = 0; x < numChunks; x++)
-			{
-				for (int z = 0; z < numChunks; z++)
-				{
-					Vector3Int coord = new Vector3Int(x, y, z);
-					float posX = (-(numChunks - 1f) / 2 + x) * chunkSize;
-					float posY = (-(numChunks - 1f) / 2 + y) * chunkSize;
-					float posZ = (-(numChunks - 1f) / 2 + z) * chunkSize;
-					Vector3 centre = new Vector3(posX, posY, posZ);
+    // Calculate chunk size per axis
+    float chunkSizeX = boundsSizeX / numChunksX;
+    float chunkSizeY = boundsSizeY / numChunksY;
+    float chunkSizeZ = boundsSizeZ / numChunksZ;
 
-					GameObject meshHolder = new GameObject($"Chunk ({x}, {y}, {z})");
-					meshHolder.transform.parent = transform;
-					meshHolder.layer = gameObject.layer;
-					meshHolder.transform.tag = "Diggable";
-					meshHolder.layer = LayerMask.NameToLayer("Interactable");
+    int i = 0;
 
-					Chunk chunk = new Chunk(coord, centre, chunkSize, numPointsPerAxis, meshHolder);
-					chunk.SetMaterial(material);
-					chunks[i] = chunk;
-					i++;
-				}
-			}
-		}
-	}
+    for (int y = 0; y < numChunksY; y++)
+    {
+        for (int x = 0; x < numChunksX; x++)
+        {
+            for (int z = 0; z < numChunksZ; z++)
+            {
+                Vector3Int coord = new Vector3Int(x, y, z);
+                // Center the chunks around origin
+                float posX = (-(numChunksX - 1f) / 2f + x) * chunkSizeX;
+                float posY = (-(numChunksY - 1f) / 2f + y) * chunkSizeY;
+                float posZ = (-(numChunksZ - 1f) / 2f + z) * chunkSizeZ;
+                Vector3 centre = new Vector3(posX, posY, posZ);
+
+                GameObject meshHolder = new GameObject($"Chunk ({x}, {y}, {z})");
+                meshHolder.transform.parent = transform;
+                meshHolder.layer = gameObject.layer;
+                meshHolder.tag = "Diggable";
+                meshHolder.layer = LayerMask.NameToLayer("Interactable");
+
+                // Pass correct chunk sizes on each axis if your Chunk class supports it, else you can pass average or chunkSizeX as before
+                float chunkSize = Mathf.Max(chunkSizeX, Mathf.Max(chunkSizeY, chunkSizeZ)); 
+                Chunk chunk = new Chunk(coord, centre, chunkSize, numPointsPerAxis, meshHolder);
+                chunk.SetMaterial(material);
+                chunks[i] = chunk;
+                i++;
+            }
+        }
+    }
+}
+
 
 
 	public void Terraform(Vector3 point, float weight, float radius)
@@ -316,11 +331,11 @@ public class TerrainGen : MonoBehaviour
 		}
 	}
 
-	void Create3DTexture(ref RenderTexture texture, int size, string name)
+	void Create3DTexture(ref RenderTexture texture, int width, int height, int depth, string name)
 	{
 		//
 		var format = UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat;
-		if (texture == null || !texture.IsCreated() || texture.width != size || texture.height != size || texture.volumeDepth != size || texture.graphicsFormat != format)
+		if (texture == null || !texture.IsCreated() || texture.width != width || texture.height != height || texture.volumeDepth != depth || texture.graphicsFormat != format)
 		{
 			//Debug.Log ("Create tex: update noise: " + updateNoise);
 			if (texture != null)
@@ -328,9 +343,9 @@ public class TerrainGen : MonoBehaviour
 				texture.Release();
 			}
 			const int numBitsInDepthBuffer = 0;
-			texture = new RenderTexture(size, size, numBitsInDepthBuffer);
+			texture = new RenderTexture(width, height, numBitsInDepthBuffer);
 			texture.graphicsFormat = format;
-			texture.volumeDepth = size;
+			texture.volumeDepth = depth;
 			texture.enableRandomWrite = true;
 			texture.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
 
@@ -340,8 +355,22 @@ public class TerrainGen : MonoBehaviour
 		texture.wrapMode = TextureWrapMode.Repeat;
 		texture.filterMode = FilterMode.Bilinear;
 		texture.name = name;
+		Debug.Log($"Created 3D Texture: {texture.width}x{texture.height}x{texture.volumeDepth}");
+
 	}
+	private void OnDrawGizmos()
+    {
+        if (chunks == null) return;
 
+        // Choose a color for chunk bounds gizmos
+        Color chunkBoundsColor = Color.cyan;
 
+        foreach (var chunk in chunks)
+        {
+            if (chunk == null) continue;
 
+            // Draw each chunk's bounds gizmo
+            chunk.DrawBoundsGizmo(chunkBoundsColor);
+        }
+    }
 }
