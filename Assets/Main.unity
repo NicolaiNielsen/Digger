@@ -732,13 +732,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98e77b5a31ba10143bc6e7c723d2e4a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numChunks: 10
-  numPointsPerAxis: 35
+  chunkOrigin: {x: 100, y: 0, z: 80}
+  numChunks: 4
+  numPointsPerAxis: 36
   boundsSize: 10
-  chunkOrigin: {x: 75, y: 0, z: 65}
-  width: 0
-  length: 0
-  depth: 0
+  chunkSize: 10
+  xWidth: 2
+  yHeight: 10
+  zDepth: 2
   isoLevel: 0
   useFlatShading: 0
   noiseScale: 0

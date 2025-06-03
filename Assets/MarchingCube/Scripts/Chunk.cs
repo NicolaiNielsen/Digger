@@ -5,7 +5,7 @@ using Unity.Mathematics;
 public class Chunk
 {
 
-	public Vector3 centre;
+	public Vector3 chunkOrigin;
 	public float size;
 	public Mesh mesh;
 
@@ -24,10 +24,10 @@ public class Chunk
 	List<int> processedTriangles;
 
 
-	public Chunk(Vector3Int coord, Vector3 centre, float size, int numPointsPerAxis, GameObject meshHolder)
+	public Chunk(Vector3Int coord, Vector3 chunkOrigin, float size, int numPointsPerAxis, GameObject meshHolder)
 	{
 		this.id = coord;
-		this.centre = centre;
+		this.chunkOrigin = chunkOrigin;
 		this.size = size;
 		this.numPointsPerAxis = numPointsPerAxis;
 
@@ -40,7 +40,6 @@ public class Chunk
 		// Mesh rendering and collision components
 		filter = meshHolder.AddComponent<MeshFilter>();
 		renderer = meshHolder.AddComponent<MeshRenderer>();
-
 
 		filter.mesh = mesh;
 		collider = renderer.gameObject.AddComponent<MeshCollider>();
@@ -133,6 +132,6 @@ public class Chunk
 	public void DrawBoundsGizmo(Color col)
 	{
 		Gizmos.color = col;
-		Gizmos.DrawWireCube(centre, Vector3.one * size);
+		Gizmos.DrawWireCube(chunkOrigin, Vector3.one * size);
 	}
 }

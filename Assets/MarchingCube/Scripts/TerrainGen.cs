@@ -8,14 +8,14 @@ public class TerrainGen : MonoBehaviour
 {
 
 	[Header("Init Settings")]
-	public Vector3 chunkOrigin = Vector3.zero;
+	public Vector3 chunkOrigin;
 	public int numChunks = 1;
 	public int numPointsPerAxis = 2;
 	public float boundsSize = 1;
-
-	public float width;
-	public float length;
-	public float depth;
+	public int chunkSize;
+	public int xWidth;
+	public int yHeight ;
+	public int zDepth;
 
 	public float isoLevel = 0f;
 	public bool useFlatShading;
@@ -171,23 +171,16 @@ public class TerrainGen : MonoBehaviour
 		meshCompute.SetVector("chunkCoord", chunkCoord);
 
 		ComputeHelper.Dispatch(meshCompute, numVoxelsPerAxis, numVoxelsPerAxis, numVoxelsPerAxis, marchKernel);
-
 		// Create mesh
 		int[] vertexCountData = new int[1];
 		triCountBuffer.SetData(vertexCountData);
 		ComputeBuffer.CopyCount(triangleBuffer, triCountBuffer, 0);
-
 		timer_fetchVertexData.Start();
 		triCountBuffer.GetData(vertexCountData);
-
 		int numVertices = vertexCountData[0] * 3;
-
 		// Fetch vertex data from GPU
-
 		triangleBuffer.GetData(vertexDataArray, 0, 0, numVertices);
-
 		timer_fetchVertexData.Stop();
-
 		//CreateMesh(vertices);
 		timer_processVertexData.Start();
 		chunk.CreateMesh(vertexDataArray, numVertices, useFlatShading);
@@ -196,7 +189,6 @@ public class TerrainGen : MonoBehaviour
 
 	void Update()
 	{
-
 		// TODO: move somewhere more sensible
 		material.SetTexture("DensityTex", originalMap);
 		material.SetFloat("planetBoundsSize", boundsSize);
@@ -235,30 +227,26 @@ public class TerrainGen : MonoBehaviour
 
 	void CreateChunks()
 	{
-		chunks = new Chunk[numChunks * numChunks * numChunks];
-		float chunkSize = (boundsSize) / numChunks;
+		chunks = new Chunk[xWidth * yHeight * zDepth];
 		int i = 0;
-
-		for (int y = 0; y < numChunks; y++)
+		for (int x = 0; x < xWidth; x++)
 		{
-			for (int x = 0; x < numChunks; x++)
+			for (int y = 0; y < yHeight; y++)
 			{
-				for (int z = 0; z < numChunks; z++)
+				for (int z = 0; z < zDepth; z++)
 				{
 
-					Vector3Int coord = new Vector3Int(x,y,z);
-					float posX = (-(numChunks - 1f) / 2 + x) * chunkSize;
-					float posY = (-(numChunks - 1f) / 2 + y) * chunkSize;
-					float posZ = (-(numChunks - 1f) / 2 + z) * chunkSize;
-					Vector3 centre = new Vector3(posX, posY, posZ);
-
-					GameObject meshHolder = new GameObject($"Chunk ({x}, {y}, {z})");
+					Vector3Int coord = new Vector3Int((int)(x + chunkOrigin.x), (int)(y + chunkOrigin.y),(int)(z + chunkOrigin.z));
+					float posX = (x * chunkSize) + chunkOrigin.x;
+					float posY = (y * chunkSize) + chunkOrigin.y;
+					float posZ = (z * chunkSize) + chunkOrigin.z;
+					Vector3 chunkPosition = new Vector3(posX, posY, posZ);
+					GameObject meshHolder = new GameObject($"Chunk ({x + chunkOrigin.z}, {y + chunkOrigin.y}, {z + chunkOrigin.z})");
 					meshHolder.transform.parent = transform;
 					meshHolder.layer = gameObject.layer;
 					meshHolder.transform.tag = "Diggable";
 					meshHolder.layer = LayerMask.NameToLayer("Interactable");
-
-					Chunk chunk = new Chunk(coord, centre, chunkSize, numPointsPerAxis, meshHolder);
+					Chunk chunk = new Chunk(coord, chunkPosition, chunkSize, numPointsPerAxis, meshHolder);
 					chunk.SetMaterial(material);
 					chunks[i] = chunk;
 					i++;
@@ -311,7 +299,7 @@ public class TerrainGen : MonoBehaviour
 		for (int i = 0; i < chunks.Length; i++)
 		{
 			Chunk chunk = chunks[i];
-			if (MathUtility.SphereIntersectsBox(point, worldRadius, chunk.centre, Vector3.one * chunk.size))
+			if (MathUtility.SphereIntersectsBox(point, worldRadius, chunk.chunkOrigin, Vector3.one * chunk.size))
 			{
 				chunk.terra = true;
 				GenerateChunk(chunk);
@@ -345,6 +333,15 @@ public class TerrainGen : MonoBehaviour
 		texture.name = name;
 	}
 
-
-
+	void OnDrawGizmosSelected()
+	{
+		if (chunks != null)
+		{
+			foreach (var chunk in chunks)
+			{
+				if (chunk != null)
+					chunk.DrawBoundsGizmo(Color.yellow);
+			}
+		}
+	}
 }
