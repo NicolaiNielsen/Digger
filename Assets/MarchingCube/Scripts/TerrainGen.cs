@@ -129,19 +129,24 @@ public class TerrainGen : MonoBehaviour
 
 	void ComputeDensity()
 	{
-			int sizeX = rawDensityTexture.width;
-			int sizeY = rawDensityTexture.height;
-			int sizeZ = rawDensityTexture.volumeDepth;
-			densityCompute.SetInts("textureSize", sizeX, sizeY, sizeZ);
+		int sizeX = rawDensityTexture.width;
+		int sizeY = rawDensityTexture.height;
+		int sizeZ = rawDensityTexture.volumeDepth;
 
-			densityCompute.SetFloat("chunkSize", chunkSize);
-			densityCompute.SetFloat("noiseHeightMultiplier", 0f);
-			densityCompute.SetFloat("noiseScale", 0f);
+		Debug.Log(sizeX);
+		Debug.Log(sizeY);
+		Debug.Log(sizeZ);
+		densityCompute.SetInts("textureSize", sizeX, sizeY, sizeZ);
 
-			ComputeHelper.Dispatch(densityCompute, sizeX, sizeY, sizeZ);
+		densityCompute.SetFloat("chunkSize", chunkSize);
+		densityCompute.SetFloat("noiseHeightMultiplier", 0f);
+		densityCompute.SetFloat("noiseScale", 0f);
+		//Assume we are dipatching
+		ComputeHelper.Dispatch(densityCompute, sizeX, sizeY, sizeZ);
 
-			ProcessDensityMap();	
-		}
+		
+		ProcessDensityMap();
+	}
 
 	void ProcessDensityMap()
 	{
@@ -343,23 +348,22 @@ public class TerrainGen : MonoBehaviour
 		texture.filterMode = FilterMode.Bilinear;
 		texture.name = name;
 		Debug.Log($"Created 3D Texture: {texture.width}x{texture.height}x{texture.volumeDepth}");
-
 	}
 	private void OnDrawGizmos()
-    {
-        if (chunks == null) return;
+	{
+		if (chunks == null) return;
 
-        // Choose a color for chunk bounds gizmos
-        Color chunkBoundsColor = Color.cyan;
+		// Choose a color for chunk bounds gizmos
+		Color chunkBoundsColor = Color.cyan;
 
-        foreach (var chunk in chunks)
-        {
-            if (chunk == null) continue;
+		foreach (var chunk in chunks)
+		{
+			if (chunk == null) continue;
 
-            // Draw each chunk's bounds gizmo
-            chunk.DrawBoundsGizmo(chunkBoundsColor);
-        }
-    }
+			// Draw each chunk's bounds gizmo
+			chunk.DrawBoundsGizmo(chunkBoundsColor);
+		}
+	}
 
 
 }
