@@ -203,7 +203,7 @@ public class TerrainGen : MonoBehaviour
 	}
 
 
-
+	//Test commitg
 	void CreateBuffers()
 	{
 		//Creates block of memeory on the GPU
