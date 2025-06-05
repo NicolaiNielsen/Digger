@@ -8,7 +8,7 @@ public class TerrainGen : MonoBehaviour
 {
 
 	[Header("Init Settings")]
-	public int numChunks = 1;
+	public Vector3Int startPositon;
 	public int numPointsPerAxis = 2;
 	public float boundsSize = 1;
 	public float chunkSize = 1;
@@ -112,9 +112,10 @@ public class TerrainGen : MonoBehaviour
 		totalVerts = 0;
 		ComputeDensity();
 
-
+		Debug.Log(chunks.Length);
 		for (int i = 0; i < chunks.Length; i++)
 		{
+			Debug.Log("Generating chunk" + chunks[i].id);
 			GenerateChunk(chunks[i]);
 		}
 		Debug.Log("Total verts " + totalVerts);
@@ -165,16 +166,21 @@ public class TerrainGen : MonoBehaviour
 		// Marching cubes
 		int numVoxelsPerAxis = numPointsPerAxis - 1;
 		int marchKernel = 0;
-		meshCompute.SetInts("textureSize", processedDensityTexture.width, processedDensityTexture.height, processedDensityTexture.volumeDepth);
+		int sizeX = rawDensityTexture.width;
+		int sizeY = rawDensityTexture.height;
+		int sizeZ = rawDensityTexture.volumeDepth;
+		
+		meshCompute.SetInts("textureSize", rawDensityTexture.width, rawDensityTexture.height, rawDensityTexture.volumeDepth);
 		meshCompute.SetInt("numPointsPerAxis", numPointsPerAxis);
 		meshCompute.SetFloat("isoLevel", isoLevel);
-		meshCompute.SetFloat("planetSize", boundsSize);
+		meshCompute.SetFloat("chunkSize", chunkSize);
 		triangleBuffer.SetCounterValue(0);
 		meshCompute.SetBuffer(marchKernel, "triangles", triangleBuffer);
-
+		//example chunk.id
 		Vector3 chunkCoord = (Vector3)chunk.id * (numPointsPerAxis - 1);
+		Debug.Log("ChunkCoord: " + chunkCoord);
 		meshCompute.SetVector("chunkCoord", chunkCoord);
-
+		Debug.Log("numVoxelsPerAxis: " + numVoxelsPerAxis);
 		ComputeHelper.Dispatch(meshCompute, numVoxelsPerAxis, numVoxelsPerAxis, numVoxelsPerAxis, marchKernel);
 
 		// Create mesh
@@ -201,10 +207,9 @@ public class TerrainGen : MonoBehaviour
 
 	void Update()
 	{
-
 		// TODO: move somewhere more sensible
 		material.SetTexture("DensityTex", originalMap);
-		material.SetFloat("planetBoundsSize", boundsSize);
+		//material.SetFloat("planetBoundsSize", boundsSize);
 	}
 
 	//Test
@@ -254,6 +259,10 @@ public class TerrainGen : MonoBehaviour
 					float posX = (-(numChunksX - 1f) / 2 + x) * chunkSize;
 					float posY = (-(numChunksY - 1f) / 2 + y) * chunkSize;
 					float posZ = (-(numChunksZ - 1f) / 2 + z) * chunkSize;
+					Debug.Log($"Printing chunk: {{numChunksY: {y}, numChunksX: {x}, numChunksZ: {z}}}");
+					Debug.Log($"posX: {posX}");
+					Debug.Log($"posY: {posY}");
+					Debug.Log($"posZ: {posZ}");
 					Vector3 centre = new Vector3(posX, posY, posZ);
 
 					GameObject meshHolder = new GameObject($"Chunk ({x}, {y}, {z})");
@@ -261,7 +270,8 @@ public class TerrainGen : MonoBehaviour
 					meshHolder.layer = gameObject.layer;
 					meshHolder.transform.tag = "Diggable";
 					meshHolder.layer = LayerMask.NameToLayer("Interactable");
-
+					//Passes ind the index of the cube
+					//Pases in the center too
 					Chunk chunk = new Chunk(coord, centre, chunkSize, numPointsPerAxis, meshHolder);
 					chunk.SetMaterial(material);
 					chunks[i] = chunk;

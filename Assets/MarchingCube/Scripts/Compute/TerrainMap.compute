@@ -4,19 +4,14 @@ RWTexture3D<float> DensityTexture;
 int3 textureSize;
 
 float calculateDensity(int3 cell) {
-    // Hvis vi er i det øverste lag i Y
-    if (cell.y >= textureSize.y - 1)
-        return 1; //luft
-    else
-        return -1; //solid
+    return cell.y >= textureSize.y - 1 ? 1.0 : -1.0;
 }
 
 [numthreads(8,8,8)]
 void CSMain (int3 id : SV_DispatchThreadID)
 {
-    if (id.x >= textureSize.x || id.z >= textureSize.z)
+    if (id.x >= textureSize.x || id.y >= textureSize.y || id.z >= textureSize.z)
         return;
 
-    float density = calculateDensity(id);
-    DensityTexture[id] = density;
+    DensityTexture[id] = calculateDensity(id);
 }

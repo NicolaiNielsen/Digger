@@ -134,5 +134,6 @@ public class Chunk
 	{
 		Gizmos.color = col;
 		Gizmos.DrawWireCube(centre, Vector3.one * size);
+		Gizmos.DrawSphere(centre, 0.5f);
 	}
 }

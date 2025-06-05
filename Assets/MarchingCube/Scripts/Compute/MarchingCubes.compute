@@ -16,19 +16,24 @@ struct Triangle {
 
 AppendStructuredBuffer<Triangle> triangles;
 RWTexture3D<float> DensityTexture;
-int3 textureSize;
+int3 textureSize; 
 int numPointsPerAxis;
-float planetSize;
+float chunkSize;
 float isoLevel;
 float3 chunkCoord;
 
-float3 coordToWorld(int3 coord) {
-    // Per-axis worldspace calculation
-    return ((coord / (float3)(textureSize - 1)) - 0.5f) * planetSize;
-}
+float3 coordToWorld(int3 coord)
+{
+    float voxelSize = chunkSize / (numPointsPerAxis - 1);
+    //return ((coord / (float3)(textureSize - 1)) - 0.5f) * chunkSize;
+    // Antag chunkCoord = (chunkIndexX, chunkIndexY, chunkIndexZ)
+    float3 chunkOrigin = ((chunkCoord * (numPointsPerAxis - 1)) * voxelSize);
 
+    int3 localCoord = coord - int3(chunkCoord * (numPointsPerAxis - 1)) - 0.5f;
+    return chunkOrigin + localCoord * voxelSize;
+}
 int indexFromCoord(int3 coord) {
-    coord = coord - int3(chunkCoord);
+    coord = coord - int3(0);
     return coord.z * numPointsPerAxis * numPointsPerAxis + coord.y * numPointsPerAxis + coord.x;
 }
 
@@ -85,9 +90,10 @@ void ProcessCube (int3 id : SV_DispatchThreadID)
     if (id.x >= numCubesPerAxis || id.y >= numCubesPerAxis || id.z >= numCubesPerAxis) {
         return;
     }
+    //coord == ,9,9 + int3(0,0,0) +  numpoints per axis)
 
     int3 coord = id + int3(chunkCoord);
-
+    //0,0,0
     // Calculate coordinates of each corner of the current cube
     int3 cornerCoords[8];
     cornerCoords[0] = coord + int3(0, 0, 0);
