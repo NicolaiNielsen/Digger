@@ -165,7 +165,7 @@ public class TerrainGen : MonoBehaviour
 		// Marching cubes
 		int numVoxelsPerAxis = numPointsPerAxis - 1;
 		int marchKernel = 0;
-		meshCompute.SetInt("textureSize", processedDensityTexture.width);
+		meshCompute.SetInts("textureSize", processedDensityTexture.width, processedDensityTexture.height, processedDensityTexture.volumeDepth);
 		meshCompute.SetInt("numPointsPerAxis", numPointsPerAxis);
 		meshCompute.SetFloat("isoLevel", isoLevel);
 		meshCompute.SetFloat("planetSize", boundsSize);
