@@ -59,7 +59,7 @@ public class TerrainGen : MonoBehaviour
 		var sw = System.Diagnostics.Stopwatch.StartNew();
 		GenerateAllChunks();
 
-		Debug.Log("Generation Time: " + sw.ElapsedMilliseconds + " ms");
+		//Debug.Log("Generation Time: " + sw.ElapsedMilliseconds + " ms");
 		ComputeHelper.CreateRenderTexture3D(ref originalMap, processedDensityTexture);
 		if (processedDensityTexture == null)
 		{
@@ -112,18 +112,18 @@ public class TerrainGen : MonoBehaviour
 		totalVerts = 0;
 		ComputeDensity();
 
-		Debug.Log(chunks.Length);
+		//Debug.Log(chunks.Length);
 		for (int i = 0; i < chunks.Length; i++)
 		{
 			Debug.Log("Generating chunk" + chunks[i].id);
 			GenerateChunk(chunks[i]);
 		}
-		Debug.Log("Total verts " + totalVerts);
+		//Debug.Log("Total verts " + totalVerts);
 
 		// Print timers:
-		Debug.Log("Fetch vertex data: " + timer_fetchVertexData.ElapsedMilliseconds + " ms");
-		Debug.Log("Process vertex data: " + timer_processVertexData.ElapsedMilliseconds + " ms");
-		Debug.Log("Sum: " + (timer_fetchVertexData.ElapsedMilliseconds + timer_processVertexData.ElapsedMilliseconds));
+		//Debug.Log("Fetch vertex data: " + timer_fetchVertexData.ElapsedMilliseconds + " ms");
+		//Debug.Log("Process vertex data: " + timer_processVertexData.ElapsedMilliseconds + " ms");
+		//Debug.Log("Sum: " + (timer_fetchVertexData.ElapsedMilliseconds + timer_processVertexData.ElapsedMilliseconds));
 
 
 	}
@@ -134,9 +134,9 @@ public class TerrainGen : MonoBehaviour
 		int sizeY = rawDensityTexture.height;
 		int sizeZ = rawDensityTexture.volumeDepth;
 
-		Debug.Log(sizeX);
-		Debug.Log(sizeY);
-		Debug.Log(sizeZ);
+		//Debug.Log(sizeX);
+		//Debug.Log(sizeY);
+		//Debug.Log(sizeZ);
 		densityCompute.SetInts("textureSize", sizeX, sizeY, sizeZ);
 
 		densityCompute.SetFloat("chunkSize", chunkSize);
@@ -166,18 +166,17 @@ public class TerrainGen : MonoBehaviour
 		// Marching cubes
 		int numVoxelsPerAxis = numPointsPerAxis - 1;
 		int marchKernel = 0;
-		int sizeX = rawDensityTexture.width;
-		int sizeY = rawDensityTexture.height;
-		int sizeZ = rawDensityTexture.volumeDepth;
-		
+	
 		meshCompute.SetInts("textureSize", rawDensityTexture.width, rawDensityTexture.height, rawDensityTexture.volumeDepth);
 		meshCompute.SetInt("numPointsPerAxis", numPointsPerAxis);
 		meshCompute.SetFloat("isoLevel", isoLevel);
 		meshCompute.SetFloat("chunkSize", chunkSize);
 		triangleBuffer.SetCounterValue(0);
 		meshCompute.SetBuffer(marchKernel, "triangles", triangleBuffer);
-		//example chunk.id
+		//example chunk.id = chunk.id is )
 		Vector3 chunkCoord = (Vector3)chunk.id * (numPointsPerAxis - 1);
+		Debug.Log("Chunk.id: " + chunk.id);
+		Debug.Log($"Chunk {chunk.id} * {numVoxelsPerAxis} = {chunkCoord}");
 		Debug.Log("ChunkCoord: " + chunkCoord);
 		meshCompute.SetVector("chunkCoord", chunkCoord);
 		Debug.Log("numVoxelsPerAxis: " + numVoxelsPerAxis);
@@ -260,9 +259,9 @@ public class TerrainGen : MonoBehaviour
 					float posY = (-(numChunksY - 1f) / 2 + y) * chunkSize;
 					float posZ = (-(numChunksZ - 1f) / 2 + z) * chunkSize;
 					Debug.Log($"Printing chunk: {{numChunksY: {y}, numChunksX: {x}, numChunksZ: {z}}}");
-					Debug.Log($"posX: {posX}");
-					Debug.Log($"posY: {posY}");
-					Debug.Log($"posZ: {posZ}");
+					//Debug.Log($"posX: {posX}");
+					//Debug.Log($"posY: {posY}");
+					//Debug.Log($"posZ: {posZ}");
 					Vector3 centre = new Vector3(posX, posY, posZ);
 
 					GameObject meshHolder = new GameObject($"Chunk ({x}, {y}, {z})");
@@ -284,44 +283,73 @@ public class TerrainGen : MonoBehaviour
 
 	public void Terraform(Vector3 point, float weight, float radius)
 	{
-		int editTextureSize = rawDensityTexture.width;
-		float editPixelWorldSize = boundsSize / editTextureSize;
-		int editRadius = Mathf.CeilToInt(radius / editPixelWorldSize);
+		Debug.Log($"Terraform called at {point} with weight {weight} and radius {radius}");
 
+		// Get per-axis texture sizes
+		int sizeX = rawDensityTexture.width;
+		int sizeY = rawDensityTexture.height;
+		int sizeZ = rawDensityTexture.volumeDepth;
+		Debug.Log($"Density texture size: {sizeX}x{sizeY}x{sizeZ}");
+
+		// Calculate world-to-texture scale for each axis
+		float pixelWorldSizeX = boundsSize / sizeX;
+		float pixelWorldSizeY = boundsSize / sizeY;
+		float pixelWorldSizeZ = boundsSize / sizeZ;
+		Debug.Log($"Pixel world size: {pixelWorldSizeX}, {pixelWorldSizeY}, {pixelWorldSizeZ}");
+
+		// Convert world position to texture coordinates (0..size-1)
 		float tx = Mathf.Clamp01((point.x + boundsSize / 2) / boundsSize);
 		float ty = Mathf.Clamp01((point.y + boundsSize / 2) / boundsSize);
 		float tz = Mathf.Clamp01((point.z + boundsSize / 2) / boundsSize);
 
-		int editX = Mathf.RoundToInt(tx * (editTextureSize - 1));
-		int editY = Mathf.RoundToInt(ty * (editTextureSize - 1));
-		int editZ = Mathf.RoundToInt(tz * (editTextureSize - 1));
+		int editX = Mathf.RoundToInt(tx * (sizeX - 1));
+		int editY = Mathf.RoundToInt(ty * (sizeY - 1));
+		int editZ = Mathf.RoundToInt(tz * (sizeZ - 1));
+		Debug.Log($"Edit voxel coords: {editX}, {editY}, {editZ}");
 
-		// Clamp weight to ensure strong terraforming
-		float minWeight = 10f; // Try 10, 20, or even higher for stronger effect
+		// Calculate edit radius in texture space (average pixel size for spherical brush)
+		float avgPixelWorldSize = (pixelWorldSizeX + pixelWorldSizeY + pixelWorldSizeZ) / 3f;
+		int editRadius = Mathf.CeilToInt(radius / avgPixelWorldSize);
+		Debug.Log($"Edit radius in voxels: {editRadius}");
+
+		// Clamp weight for strong terraforming
+		float minWeight = 10f;
 		if (Mathf.Abs(weight) < minWeight)
+		{
 			weight = minWeight * Mathf.Sign(weight);
+			Debug.Log($"Weight clamped to {weight}");
+		}
 
+		// Set edit compute shader parameters
 		editCompute.SetFloat("weight", weight);
 		editCompute.SetFloat("deltaTime", Time.deltaTime);
 		editCompute.SetInts("brushCentre", editX, editY, editZ);
 		editCompute.SetInt("brushRadius", editRadius);
+		editCompute.SetInts("textureSize", sizeX, sizeY, sizeZ);
 
-		editCompute.SetInt("size", editTextureSize);
-		ComputeHelper.Dispatch(editCompute, editTextureSize, editTextureSize, editTextureSize);
+		Debug.Log("Dispatching editCompute...");
+		ComputeHelper.Dispatch(editCompute, sizeX, sizeY, sizeZ);
 
-		int size = rawDensityTexture.width;
-
+		// Optional: Blur for smooth edits
 		if (blurMap)
 		{
-			blurCompute.SetInt("textureSize", rawDensityTexture.width);
-			blurCompute.SetInts("brushCentre", editX - blurRadius - editRadius, editY - blurRadius - editRadius, editZ - blurRadius - editRadius);
+			blurCompute.SetInts("textureSize", sizeX, sizeY, sizeZ);
+			blurCompute.SetInts("brushCentre", editX, editY, editZ);
 			blurCompute.SetInt("blurRadius", blurRadius);
 			blurCompute.SetInt("brushRadius", editRadius);
-			int k = (editRadius + blurRadius) * 2;
-			ComputeHelper.Dispatch(blurCompute, k, k, k);
+			int kx = Mathf.Min(sizeX, (editRadius + blurRadius) * 2);
+			int ky = Mathf.Min(sizeY, (editRadius + blurRadius) * 2);
+			int kz = Mathf.Min(sizeZ, (editRadius + blurRadius) * 2);
+			Debug.Log($"Dispatching blurCompute with size {kx}x{ky}x{kz}...");
+			ComputeHelper.Dispatch(blurCompute, kx, ky, kz);
 		}
 
-		float worldRadius = (editRadius + 1 + ((blurMap) ? blurRadius : 0)) * editPixelWorldSize;
+		// Calculate world radius for affected chunks
+		float worldRadius = (editRadius + 1 + (blurMap ? blurRadius : 0)) * avgPixelWorldSize;
+		Debug.Log($"World radius for chunk update: {worldRadius}");
+
+		// Regenerate affected chunks
+		int affectedChunks = 0;
 		for (int i = 0; i < chunks.Length; i++)
 		{
 			Chunk chunk = chunks[i];
@@ -329,8 +357,13 @@ public class TerrainGen : MonoBehaviour
 			{
 				chunk.terra = true;
 				GenerateChunk(chunk);
+				affectedChunks++;
 			}
 		}
+		Debug.Log($"Chunks regenerated: {affectedChunks}");
+
+		// At the end of Terraform, for debugging:
+		//GenerateAllChunks();
 	}
 
 	void Create3DTexture(ref RenderTexture texture, int width, int height, int depth, string name)
@@ -359,21 +392,21 @@ public class TerrainGen : MonoBehaviour
 		texture.name = name;
 		Debug.Log($"Created 3D Texture: {texture.width}x{texture.height}x{texture.volumeDepth}");
 	}
-	private void OnDrawGizmos()
-	{
-		if (chunks == null) return;
+	// private void OnDrawGizmos()
+	// {
+	// 	if (chunks == null) return;
 
-		// Choose a color for chunk bounds gizmos
-		Color chunkBoundsColor = Color.cyan;
+	// 	// Choose a color for chunk bounds gizmos
+	// 	Color chunkBoundsColor = Color.cyan;
 
-		foreach (var chunk in chunks)
-		{
-			if (chunk == null) continue;
+	// 	foreach (var chunk in chunks)
+	// 	{
+	// 		if (chunk == null) continue;
 
-			// Draw each chunk's bounds gizmo
-			chunk.DrawBoundsGizmo(chunkBoundsColor);
-		}
-	}
+	// 		// Draw each chunk's bounds gizmo
+	// 		chunk.DrawBoundsGizmo(chunkBoundsColor);
+	// 	}
+	// }
 
 
 }

@@ -21,19 +21,24 @@ int numPointsPerAxis;
 float chunkSize;
 float isoLevel;
 float3 chunkCoord;
+//chunk coord is 0,0,0 
 
+// chunk coord er beregnet
 float3 coordToWorld(int3 coord)
-{
+{   
+    //1 / 8, 0.125
     float voxelSize = chunkSize / (numPointsPerAxis - 1);
     //return ((coord / (float3)(textureSize - 1)) - 0.5f) * chunkSize;
     // Antag chunkCoord = (chunkIndexX, chunkIndexY, chunkIndexZ)
+    //0,0,0 * 8 *
     float3 chunkOrigin = ((chunkCoord * (numPointsPerAxis - 1)) * voxelSize);
 
-    int3 localCoord = coord - int3(chunkCoord * (numPointsPerAxis - 1)) - 0.5f;
-    return chunkOrigin + localCoord * voxelSize;
+    int3 localCoord = (coord - int3(chunkCoord * (numPointsPerAxis - 1)));
+    return chunkOrigin + (localCoord) * voxelSize;
 }
+
 int indexFromCoord(int3 coord) {
-    coord = coord - int3(0);
+    coord = coord - int3(chunkCoord);
     return coord.z * numPointsPerAxis * numPointsPerAxis + coord.y * numPointsPerAxis + coord.x;
 }
 
@@ -87,13 +92,19 @@ Vertex createVertex(int3 coordA, int3 coordB) {
 void ProcessCube (int3 id : SV_DispatchThreadID)
 {   
     int numCubesPerAxis = numPointsPerAxis - 1;
+    //Bounds check
+    //if the id.x is greater than the number of points per axis, we just return
     if (id.x >= numCubesPerAxis || id.y >= numCubesPerAxis || id.z >= numCubesPerAxis) {
         return;
     }
+
     //coord == ,9,9 + int3(0,0,0) +  numpoints per axis)
+    //id (0,0,0), (0,0,1) + 0,0,0 or 0,0,3
 
     int3 coord = id + int3(chunkCoord);
     //0,0,0
+    //0,0,4
+    
     // Calculate coordinates of each corner of the current cube
     int3 cornerCoords[8];
     cornerCoords[0] = coord + int3(0, 0, 0);

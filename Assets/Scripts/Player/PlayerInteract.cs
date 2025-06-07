@@ -51,6 +51,7 @@ public class PlayerInteract : MonoBehaviour
 			float rayRadius = terraformRadius * Mathf.Lerp(0.01f, 1, i / (numIterations - 1f));
 			if (Physics.SphereCast(cam.transform.position, rayRadius, cam.transform.forward, out hit, 1000, mask))
 			{
+				Debug.Log("WE HITTING SOMETHING?");
 				lastTerraformPointLocal = MathUtility.WorldToLocalVector(cam.transform.rotation, hit.point);
 				Terraform(hit.point);
 				rayHitTerrain = true;
@@ -61,7 +62,7 @@ public class PlayerInteract : MonoBehaviour
 
     void Terraform(Vector3 terraformPoint)
 	{
-		//Debug.DrawLine(cam.position, point, Color.green);
+		Debug.Log("terraformPoint");
 		hasHit = true;
 		hitPoint = terraformPoint;
 
@@ -84,6 +85,8 @@ public class PlayerInteract : MonoBehaviour
 		{
 			isTerraforming = true;
 			TerrainGen.Terraform(terraformPoint, weight, terraformRadius);
+			Debug.Log(inputManager.onFoot.Dig.triggered);
+			Debug.Log("WE calling onfoot dig Triggerd?");
 		}
 
 		if (isTerraforming)

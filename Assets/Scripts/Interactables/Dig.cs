@@ -10,10 +10,6 @@ public class Dig : Interactable
 
         if (Physics.Raycast(ray, out hit, 3f, LayerMask.GetMask("Interactable")))
         {
-
-
-
-
             Chunk cube = hit.collider.GetComponent<Chunk>();
             if (cube != null)
             {
