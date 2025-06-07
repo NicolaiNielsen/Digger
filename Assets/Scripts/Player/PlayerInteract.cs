@@ -12,7 +12,7 @@ public class PlayerInteract : MonoBehaviour
 
     public event System.Action onTerrainModified;
 
-    public float terraformRadius = 5;
+    public float terraformRadius = 1;
     public float terraformSpeedNear = 0.1f;
     public float terraformSpeedFar = 0.25f;
 
@@ -84,6 +84,7 @@ public class PlayerInteract : MonoBehaviour
 		if (inputManager.onFoot.Dig.triggered)
 		{
 			isTerraforming = true;
+			Debug.Log("Terraform radius: " + terraformRadius);
 			TerrainGen.Terraform(terraformPoint, weight, terraformRadius);
 			Debug.Log(inputManager.onFoot.Dig.triggered);
 			Debug.Log("WE calling onfoot dig Triggerd?");

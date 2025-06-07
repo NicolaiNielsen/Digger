@@ -1,7 +1,7 @@
 #pragma kernel CSMain
 
 RWTexture3D<float> EditTexture;
-int size;
+int3 textureSize;
 int3 brushCentre;
 int brushRadius;
 float deltaTime;
@@ -9,35 +9,26 @@ float weight;
 
 // return smooth value between 0 and 1 (0 when t = minVal, 1 when t = maxVal)
 float smoothstep(float minVal, float maxVal, float t) {
-	t = saturate((t-minVal) / (maxVal - minVal));
-	return t * t * (3 - 2 * t);
+    t = saturate((t-minVal) / (maxVal - minVal));
+    return t * t * (3 - 2 * t);
 }
 
 [numthreads(8,8,8)]
 void CSMain (int3 id : SV_DispatchThreadID)
 {
-	//if (id.x >= size || id.y >= size || id.z >= size) {
-	//	return;
-	//}
-	const int b = 4;
-	if (id.x >= size-b || id.y >= size-b || id.z >= size-b) {
-		return;
-	}
-	if (id.x <= b || id.y <= b || id.z <=b) {
-		return;
-	}
+    // Bounds check for non-cubic textures
+    if (id.x < 0 || id.x >= textureSize.x ||
+        id.y < 0 || id.y >= textureSize.y ||
+        id.z < 0 || id.z >= textureSize.z) {
+        return;
+    }
 
-	int3 offset = id - brushCentre;
-	int sqrDst = dot(offset, offset);
+    int3 offset = id - brushCentre;
+    int sqrDst = dot(offset, offset);
 
-
-	if (sqrDst <= brushRadius * brushRadius) {
-		float dst = sqrt(sqrDst);
-		float brushWeight = 1-smoothstep(brushRadius * 0.7, brushRadius, dst);
-		//brushWeight = 1;
-		EditTexture[id] += weight * deltaTime * brushWeight;
-	}
-	
-
-	//EditTexture[id] = sin(id.x * 2) * 0.2;
+    if (sqrDst <= brushRadius * brushRadius) {
+        float dst = sqrt((float)sqrDst);
+        float brushWeight = 1 - smoothstep(brushRadius * 0.7, brushRadius, dst);
+        EditTexture[id] += weight * deltaTime * brushWeight;
+    }
 }

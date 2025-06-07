@@ -291,16 +291,21 @@ public class TerrainGen : MonoBehaviour
 		int sizeZ = rawDensityTexture.volumeDepth;
 		Debug.Log($"Density texture size: {sizeX}x{sizeY}x{sizeZ}");
 
+		// Calculate total world size based on chunk grid and chunkSize
+		float worldSizeX = numChunksX * chunkSize;
+		float worldSizeY = numChunksY * chunkSize;
+		float worldSizeZ = numChunksZ * chunkSize;
+
 		// Calculate world-to-texture scale for each axis
-		float pixelWorldSizeX = boundsSize / sizeX;
-		float pixelWorldSizeY = boundsSize / sizeY;
-		float pixelWorldSizeZ = boundsSize / sizeZ;
+		float pixelWorldSizeX = worldSizeX / sizeX;
+		float pixelWorldSizeY = worldSizeY / sizeY;
+		float pixelWorldSizeZ = worldSizeZ / sizeZ;
 		Debug.Log($"Pixel world size: {pixelWorldSizeX}, {pixelWorldSizeY}, {pixelWorldSizeZ}");
 
 		// Convert world position to texture coordinates (0..size-1)
-		float tx = Mathf.Clamp01((point.x + boundsSize / 2) / boundsSize);
-		float ty = Mathf.Clamp01((point.y + boundsSize / 2) / boundsSize);
-		float tz = Mathf.Clamp01((point.z + boundsSize / 2) / boundsSize);
+		float tx = Mathf.Clamp01((point.x + worldSizeX / 2) / worldSizeX);
+		float ty = Mathf.Clamp01((point.y + worldSizeY / 2) / worldSizeY);
+		float tz = Mathf.Clamp01((point.z + worldSizeZ / 2) / worldSizeZ);
 
 		int editX = Mathf.RoundToInt(tx * (sizeX - 1));
 		int editY = Mathf.RoundToInt(ty * (sizeY - 1));
@@ -353,8 +358,10 @@ public class TerrainGen : MonoBehaviour
 		for (int i = 0; i < chunks.Length; i++)
 		{
 			Chunk chunk = chunks[i];
+			Debug.Log($"Chunk {i}: centre={chunk.centre}, size={chunk.size}, point={point}, worldRadius={worldRadius}");
 			if (MathUtility.SphereIntersectsBox(point, worldRadius, chunk.centre, Vector3.one * chunk.size))
 			{
+				Debug.Log($"Chunk {i} INTERSECTS!");
 				chunk.terra = true;
 				GenerateChunk(chunk);
 				affectedChunks++;
