@@ -24,10 +24,9 @@ public class Chunk
 	List<int> processedTriangles;
 
 
-	public Chunk(Vector3Int coord, Vector3 centre, float size, int numPointsPerAxis, GameObject meshHolder)
+	public Chunk(Vector3Int coord, float size, int numPointsPerAxis, GameObject meshHolder)
 	{
 		this.id = coord;
-		this.centre = centre;
 		this.size = size;
 		this.numPointsPerAxis = numPointsPerAxis;
 
@@ -133,7 +132,10 @@ public class Chunk
 	public void DrawBoundsGizmo(Color col)
 	{
 		Gizmos.color = col;
-		Gizmos.DrawWireCube(centre, Vector3.one * size);
-		Gizmos.DrawSphere(centre, 0.5f);
+		// Calculate the world-space corner of this chunk
+		Vector3 corner = (Vector3)id * size;
+		Vector3 center = corner + Vector3.one * (size / 2f);
+		Gizmos.DrawWireCube(center, Vector3.one * size);
+		Gizmos.DrawSphere(corner, 0.2f);
 	}
 }

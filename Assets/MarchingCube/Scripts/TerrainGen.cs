@@ -255,15 +255,10 @@ public class TerrainGen : MonoBehaviour
 				for (int z = 0; z < numChunksZ; z++)
 				{
 					Vector3Int coord = new Vector3Int(x, y, z);
-					float posX = (-(numChunksX - 1f) / 2 + x) * chunkSize;
-					float posY = (-(numChunksY - 1f) / 2 + y) * chunkSize;
-					float posZ = (-(numChunksZ - 1f) / 2 + z) * chunkSize;
 					Debug.Log($"Printing chunk: {{numChunksY: {y}, numChunksX: {x}, numChunksZ: {z}}}");
 					//Debug.Log($"posX: {posX}");
 					//Debug.Log($"posY: {posY}");
 					//Debug.Log($"posZ: {posZ}");
-					Vector3 centre = new Vector3(posX, posY, posZ);
-
 					GameObject meshHolder = new GameObject($"Chunk ({x}, {y}, {z})");
 					meshHolder.transform.parent = transform;
 					meshHolder.layer = gameObject.layer;
@@ -271,7 +266,7 @@ public class TerrainGen : MonoBehaviour
 					meshHolder.layer = LayerMask.NameToLayer("Interactable");
 					//Passes ind the index of the cube
 					//Pases in the center too
-					Chunk chunk = new Chunk(coord, centre, chunkSize, numPointsPerAxis, meshHolder);
+					Chunk chunk = new Chunk(coord, chunkSize, numPointsPerAxis, meshHolder);
 					chunk.SetMaterial(material);
 					chunks[i] = chunk;
 					i++;
@@ -399,21 +394,21 @@ public class TerrainGen : MonoBehaviour
 		texture.name = name;
 		Debug.Log($"Created 3D Texture: {texture.width}x{texture.height}x{texture.volumeDepth}");
 	}
-	// private void OnDrawGizmos()
-	// {
-	// 	if (chunks == null) return;
+	private void OnDrawGizmos()
+	{
+		if (chunks == null) return;
 
-	// 	// Choose a color for chunk bounds gizmos
-	// 	Color chunkBoundsColor = Color.cyan;
+		// Choose a color for chunk bounds gizmos
+		Color chunkBoundsColor = Color.cyan;
 
-	// 	foreach (var chunk in chunks)
-	// 	{
-	// 		if (chunk == null) continue;
+		foreach (var chunk in chunks)
+		{
+			if (chunk == null) continue;
 
-	// 		// Draw each chunk's bounds gizmo
-	// 		chunk.DrawBoundsGizmo(chunkBoundsColor);
-	// 	}
-	// }
+			// Draw each chunk's bounds gizmo
+			chunk.DrawBoundsGizmo(chunkBoundsColor);
+		}
+	}
 
 
 }
