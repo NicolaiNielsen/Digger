@@ -3473,7 +3473,7 @@ Transform:
   m_GameObject: {fileID: 877493417}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -100, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5736,12 +5736,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   startPositon: {x: 0, y: 0, z: 0}
-  numPointsPerAxis: 4
+  numPointsPerAxis: 36
   boundsSize: 10
   chunkSize: 5
-  numChunksX: 1
+  numChunksX: 10
   numChunksY: 1
-  numChunksZ: 2
+  numChunksZ: 10
   isoLevel: 0
   useFlatShading: 0
   noiseScale: 0
@@ -5752,7 +5752,7 @@ MonoBehaviour:
   densityCompute: {fileID: 7200000, guid: 010ef0f8809d01043a14d2b2e56810c1, type: 3}
   blurCompute: {fileID: 7200000, guid: f07528ffd36f7df4ab037a391fc9e17c, type: 3}
   editCompute: {fileID: 7200000, guid: a4501189317bb624f975926c78d89478, type: 3}
-  material: {fileID: 2100000, guid: 9f4347a8793c928459ad74e6f213d611, type: 2}
+  material: {fileID: 2100000, guid: 15b4728136916204e8e53b9df26cd135, type: 2}
   rawDensityTexture: {fileID: 0}
   processedDensityTexture: {fileID: 0}
 --- !u!1 &1622877326
@@ -7960,9 +7960,13 @@ PrefabInstance:
       propertyPath: mask.m_Bits
       value: 64
       objectReference: {fileID: 0}
+    - target: {fileID: 4735328652354295582, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
+      propertyPath: terraformRadius
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 6462484006312127367, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 124.63
+      value: 14.6
       objectReference: {fileID: 0}
     - target: {fileID: 6462484006312127367, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
       propertyPath: m_LocalPosition.y
@@ -7970,7 +7974,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6462484006312127367, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 141.25
+      value: 16.6
       objectReference: {fileID: 0}
     - target: {fileID: 6462484006312127367, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
       propertyPath: m_LocalRotation.w
