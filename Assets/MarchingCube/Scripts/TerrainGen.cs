@@ -174,6 +174,8 @@ public class TerrainGen : MonoBehaviour
 		triangleBuffer.SetCounterValue(0);
 		meshCompute.SetBuffer(marchKernel, "triangles", triangleBuffer);
 		//example chunk.id = chunk.id is )
+		//0,0,0 * numPointsPerAxis - 1
+		//0,0,1 * 36
 		Vector3 chunkCoord = (Vector3)chunk.id * (numPointsPerAxis - 1);
 		Debug.Log("Chunk.id: " + chunk.id);
 		Debug.Log($"Chunk {chunk.id} * {numVoxelsPerAxis} = {chunkCoord}");
@@ -296,7 +298,7 @@ public class TerrainGen : MonoBehaviour
 		float pixelWorldSizeY = worldSizeY / sizeY;
 		float pixelWorldSizeZ = worldSizeZ / sizeZ;
 		Debug.Log($"Pixel world size: {pixelWorldSizeX}, {pixelWorldSizeY}, {pixelWorldSizeZ}");
-
+		//Daily commit
 		// Convert world position to texture coordinates (0..size-1)
 		float tx = Mathf.Clamp01((point.x + worldSizeX / 2) / worldSizeX);
 		float ty = Mathf.Clamp01((point.y + worldSizeY / 2) / worldSizeY);
@@ -353,9 +355,10 @@ public class TerrainGen : MonoBehaviour
 		for (int i = 0; i < chunks.Length; i++)
 		{
 			Chunk chunk = chunks[i];
-			Debug.Log($"Chunk {i}: centre={chunk.centre}, size={chunk.size}, point={point}, worldRadius={worldRadius}");
-			if (MathUtility.SphereIntersectsBox(point, worldRadius, chunk.centre, Vector3.one * chunk.size))
-			{
+			
+			if (MathUtility.SphereIntersectsBox(point, worldRadius, chunk.id, Vector3.one * chunk.size))
+			{	
+				Debug.Log($"Chunk {i}: centre={chunk.id}, size={chunk.size}, point={point}, worldRadius={worldRadius}");
 				Debug.Log($"Chunk {i} INTERSECTS!");
 				chunk.terra = true;
 				GenerateChunk(chunk);

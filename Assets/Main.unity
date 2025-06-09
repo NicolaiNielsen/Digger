@@ -5737,9 +5737,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startPositon: {x: 0, y: 0, z: 0}
   numPointsPerAxis: 36
-  boundsSize: 10
+  boundsSize: 5
   chunkSize: 5
-  numChunksX: 10
+  numChunksX: 15
   numChunksY: 1
   numChunksZ: 10
   isoLevel: 0

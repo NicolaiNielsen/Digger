@@ -29,8 +29,8 @@ float3 coordToWorld(int3 coord)
 
 
     
-    		Vector3 corner = (Vector3)id * size;
-		Vector3 center = corner + Vector3.one * (size / 2f);
+    		//Vector3 corner = (Vector3)id * size;
+		//Vector3 center = corner + Vector3.one * (size / 2f);
     //1 / 8, 0.125
     float voxelSize = chunkSize / (numPointsPerAxis - 1);
     //return ((coord / (float3)(textureSize - 1)) - 0.5f) * chunkSize;
@@ -92,24 +92,40 @@ Vertex createVertex(int3 coordA, int3 coordB) {
 
     return vertex;
 }
+//What are we dispatching?
 
 [numthreads(8,8,8)]
 void ProcessCube (int3 id : SV_DispatchThreadID)
-{   
+{      
+    //So inside processCube we give it id.x, id.y, id,z
+    //which begins from 0,0,0 --> 35,35,35 (numVoxelsPerAxis (numPointsPerAxis - 1))
+
+    //35 = 36 - 1
     int numCubesPerAxis = numPointsPerAxis - 1;
+    
     //Bounds check
     //if the id.x is greater than the number of points per axis, we just return
     if (id.x >= numCubesPerAxis || id.y >= numCubesPerAxis || id.z >= numCubesPerAxis) {
         return;
     }
 
-    //coord == ,9,9 + int3(0,0,0) +  numpoints per axis)
-    //id (0,0,0), (0,0,1) + 0,0,0 or 0,0,3
 
-    int3 coord = id + int3(chunkCoord);
-    //0,0,0
-    //0,0,4
+    //We then calculate the coord 
+    //id which is the chunk index
     
+    //In a 2x2x2 we run throug 0,0,0 --> 1,1,1 which is 8 cubes 
+    //then we calculate the coord 0,0,0 + 
+
+    //Chunkcoord is calculated as follows:
+    // chunk.id * numPointsPerAxis - 1
+    // we wanna take the current coordinate and shift it relative to the chunk
+
+    //So we end up with the following:
+    int3 coord = id + int3(chunkCoord);
+    
+    //if we work with 0,0,0 chunkCoord + 0,0,1 --> 36,36,36
+    //if we work with 0,0,1 then chunk coord becomes 0,0,35 --> 35,35,70?
+    //
     // Calculate coordinates of each corner of the current cube
     int3 cornerCoords[8];
     cornerCoords[0] = coord + int3(0, 0, 0);
