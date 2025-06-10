@@ -12,7 +12,7 @@ public class PlayerInteract : MonoBehaviour
 
     public event System.Action onTerrainModified;
 
-    public float terraformRadius = 1;
+	public float terraformRadius;
     public float terraformSpeedNear = 0.1f;
     public float terraformSpeedFar = 0.25f;
 

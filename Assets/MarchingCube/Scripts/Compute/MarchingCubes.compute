@@ -26,12 +26,6 @@ float3 chunkCoord;
 // chunk coord er beregnet
 float3 coordToWorld(int3 coord)
 {   
-
-
-    
-    		//Vector3 corner = (Vector3)id * size;
-		//Vector3 center = corner + Vector3.one * (size / 2f);
-    //1 / 8, 0.125
     float voxelSize = chunkSize / (numPointsPerAxis - 1);
     //return ((coord / (float3)(textureSize - 1)) - 0.5f) * chunkSize;
     // Antag chunkCoord = (chunkIndexX, chunkIndexY, chunkIndexZ)

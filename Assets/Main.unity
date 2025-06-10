@@ -5740,7 +5740,7 @@ MonoBehaviour:
   boundsSize: 5
   chunkSize: 5
   numChunksX: 15
-  numChunksY: 1
+  numChunksY: 15
   numChunksZ: 10
   isoLevel: 0
   useFlatShading: 0
@@ -8012,7 +8012,8 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4631199063076625011, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:

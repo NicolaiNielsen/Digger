@@ -15,3 +15,7 @@ void CSMain (int3 id : SV_DispatchThreadID)
 
     DensityTexture[id] = calculateDensity(id);
 }
+
+
+
+

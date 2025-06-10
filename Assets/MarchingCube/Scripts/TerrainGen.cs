@@ -17,6 +17,8 @@ public class TerrainGen : MonoBehaviour
 	public int numChunksZ = 2;
 	public float isoLevel = 0f;
 	public bool useFlatShading;
+	Vector3? lastTerraformPoint = null;
+	float lastTerraformRadius = 1f;
 
 	public float noiseScale;
 	public float noiseHeightMultiplier;
@@ -183,7 +185,7 @@ public class TerrainGen : MonoBehaviour
 		meshCompute.SetVector("chunkCoord", chunkCoord);
 		Debug.Log("numVoxelsPerAxis: " + numVoxelsPerAxis);
 		ComputeHelper.Dispatch(meshCompute, numVoxelsPerAxis, numVoxelsPerAxis, numVoxelsPerAxis, marchKernel);
-
+		
 		// Create mesh
 		int[] vertexCountData = new int[1];
 		triCountBuffer.SetData(vertexCountData);
@@ -363,10 +365,10 @@ public class TerrainGen : MonoBehaviour
 		for (int i = 0; i < chunks.Length; i++)
 		{
 			Chunk chunk = chunks[i];
-			
-		Vector3 chunkCenter = (Vector3)chunk.id * chunk.size + Vector3.one * (chunk.size / 2f);
-		if (MathUtility.SphereIntersectsBox(point, worldRadius, chunkCenter, Vector3.one * chunk.size))
-		{
+
+			Vector3 chunkCenter = (Vector3)chunk.id * chunk.size + Vector3.one * (chunk.size / 2f);
+			if (MathUtility.SphereIntersectsBox(point, worldRadius, chunkCenter, Vector3.one * chunk.size))
+			{
 				Debug.Log($"Chunk {i}: centre={chunk.id}, size={chunk.size}, point={point}, worldRadius={worldRadius}");
 				Debug.Log($"Chunk {i} INTERSECTS!");
 				chunk.terra = true;
@@ -378,6 +380,9 @@ public class TerrainGen : MonoBehaviour
 
 		// At the end of Terraform, for debugging:
 		//GenerateAllChunks();
+		
+		lastTerraformPoint = point;
+		lastTerraformRadius = radius;
 	}
 
 	void Create3DTexture(ref RenderTexture texture, int width, int height, int depth, string name)
@@ -406,21 +411,29 @@ public class TerrainGen : MonoBehaviour
 		texture.name = name;
 		Debug.Log($"Created 3D Texture: {texture.width}x{texture.height}x{texture.volumeDepth}");
 	}
-	private void OnDrawGizmos()
-	{
-		if (chunks == null) return;
+private void OnDrawGizmos()
+{
+    if (chunks == null) return;
 
-		// Choose a color for chunk bounds gizmos
-		Color chunkBoundsColor = Color.cyan;
+    // Draw chunk bounds
+    Color chunkBoundsColor = Color.cyan;
+    foreach (var chunk in chunks)
+    {
+        if (chunk == null) continue;
+        chunk.DrawBoundsGizmo(chunkBoundsColor);
+    }
 
-		foreach (var chunk in chunks)
-		{
-			if (chunk == null) continue;
+    // Draw last terraform area
+    if (lastTerraformPoint != null)
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(lastTerraformPoint.Value, lastTerraformRadius);
 
-			// Draw each chunk's bounds gizmo
-			chunk.DrawBoundsGizmo(chunkBoundsColor);
-		}
-	}
+        // Optional: Draw voxel/texture edit box
+        // Gizmos.color = new Color(1f, 0.5f, 0f, 0.2f);
+        // Gizmos.DrawWireCube(lastTerraformPoint.Value, Vector3.one * lastTerraformRadius * 2f);
+    }
+}
 
 
 }
