@@ -286,7 +286,7 @@ public class TerrainGen : MonoBehaviour
 		int sizeX = rawDensityTexture.width;
 		int sizeY = rawDensityTexture.height;
 		int sizeZ = rawDensityTexture.volumeDepth;
-		Debug.Log($"Density texture size: {sizeX}x{sizeY}x{sizeZ}");
+		//Debug.Log($"Density texture size: {sizeX}x{sizeY}x{sizeZ}");
 
 		// Calculate total world size based on chunk grid and chunkSize
 		float worldSizeX = numChunksX * chunkSize;
@@ -298,16 +298,24 @@ public class TerrainGen : MonoBehaviour
 		float pixelWorldSizeY = worldSizeY / sizeY;
 		float pixelWorldSizeZ = worldSizeZ / sizeZ;
 		Debug.Log($"Pixel world size: {pixelWorldSizeX}, {pixelWorldSizeY}, {pixelWorldSizeZ}");
-		//Daily commit
+
 		// Convert world position to texture coordinates (0..size-1)
-		float tx = Mathf.Clamp01((point.x + worldSizeX / 2) / worldSizeX);
-		float ty = Mathf.Clamp01((point.y + worldSizeY / 2) / worldSizeY);
-		float tz = Mathf.Clamp01((point.z + worldSizeZ / 2) / worldSizeZ);
+		float tx = Mathf.Clamp01(point.x / worldSizeX);
+		float ty = Mathf.Clamp01(point.y / worldSizeY);
+		float tz = Mathf.Clamp01(point.z / worldSizeZ);
 
 		int editX = Mathf.RoundToInt(tx * (sizeX - 1));
 		int editY = Mathf.RoundToInt(ty * (sizeY - 1));
 		int editZ = Mathf.RoundToInt(tz * (sizeZ - 1));
 		Debug.Log($"Edit voxel coords: {editX}, {editY}, {editZ}");
+
+		// Add this debug visualization here:
+		Vector3 editWorldPos = new Vector3(
+			(tx * worldSizeX) - worldSizeX / 2f,
+			(ty * worldSizeY) - worldSizeY / 2f,
+			(tz * worldSizeZ) - worldSizeZ / 2f
+		);
+		Debug.DrawLine(point, editWorldPos, Color.red, 2f);
 
 		// Calculate edit radius in texture space (average pixel size for spherical brush)
 		float avgPixelWorldSize = (pixelWorldSizeX + pixelWorldSizeY + pixelWorldSizeZ) / 3f;
@@ -356,8 +364,9 @@ public class TerrainGen : MonoBehaviour
 		{
 			Chunk chunk = chunks[i];
 			
-			if (MathUtility.SphereIntersectsBox(point, worldRadius, chunk.id, Vector3.one * chunk.size))
-			{	
+		Vector3 chunkCenter = (Vector3)chunk.id * chunk.size + Vector3.one * (chunk.size / 2f);
+		if (MathUtility.SphereIntersectsBox(point, worldRadius, chunkCenter, Vector3.one * chunk.size))
+		{
 				Debug.Log($"Chunk {i}: centre={chunk.id}, size={chunk.size}, point={point}, worldRadius={worldRadius}");
 				Debug.Log($"Chunk {i} INTERSECTS!");
 				chunk.terra = true;
