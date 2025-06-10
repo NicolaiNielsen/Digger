@@ -172,6 +172,7 @@ public class TerrainGen : MonoBehaviour
 	void GenerateChunk(Chunk chunk)
 	{
 		// Marching cubes
+		// Opensource contirubtion
 		int numVoxelsPerAxis = numPointsPerAxis - 1;
 		int marchKernel = 0;
 	
