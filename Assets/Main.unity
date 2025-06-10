@@ -7962,7 +7962,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4735328652354295582, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
       propertyPath: terraformRadius
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6462484006312127367, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
       propertyPath: m_LocalPosition.x

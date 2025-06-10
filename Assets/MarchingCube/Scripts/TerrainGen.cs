@@ -155,11 +155,17 @@ public class TerrainGen : MonoBehaviour
 	{
 		if (blurMap)
 		{
-			int size = rawDensityTexture.width;
+			int sizeX = rawDensityTexture.width;
+			int sizeY = rawDensityTexture.height;
+			int sizeZ = rawDensityTexture.volumeDepth;
+
+			// Blur the entire texture: center at (0,0,0), large brush radius
 			blurCompute.SetInts("brushCentre", 0, 0, 0);
+			blurCompute.SetInt("brushRadius", Mathf.Max(sizeX, sizeY, sizeZ)); // Large enough to cover all
 			blurCompute.SetInt("blurRadius", blurRadius);
-			blurCompute.SetInt("textureSize", rawDensityTexture.width);
-			ComputeHelper.Dispatch(blurCompute, size, size, size);
+			blurCompute.SetInts("textureSize", sizeX, sizeY, sizeZ);
+
+			ComputeHelper.Dispatch(blurCompute, sizeX, sizeY, sizeZ);
 		}
 	}
 

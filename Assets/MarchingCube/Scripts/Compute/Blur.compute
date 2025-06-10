@@ -3,39 +3,41 @@
 RWTexture3D<float> Source;
 RWTexture3D<float> Result;
 int blurRadius;
-int textureSize;
 int brushRadius;
 int3 brushCentre;
-
+int3 textureSize;
 
 [numthreads(8,8,8)]
 void Blur (int3 id : SV_DispatchThreadID)
 {
-	id = id + brushCentre;
-	if (id.x >= textureSize || id.y >= textureSize || id.z >= textureSize) {
-		return;
-	}
+    id = id + brushCentre;
+    if (id.x < 0 || id.y < 0 || id.z < 0 ||
+        id.x >= textureSize.x || id.y >= textureSize.y || id.z >= textureSize.z) {
+        return;
+    }
 
-	float sum = 0;
-	float totalWeight = 0;
+    float sum = 0;
+    float totalWeight = 0;
 
-	for (int z = -blurRadius; z <= blurRadius; z ++) {
-		for (int y = -blurRadius; y <= blurRadius; y ++) {
-			for (int x = -blurRadius; x <= blurRadius; x ++) {
-				float dst = length(float3(x,y,z)) / blurRadius;
-				float weight = pow(2.5, -10*dst);
-				int3 samplePos = id + int3(x,y,z);
-				samplePos = max(0, min(samplePos, textureSize));
-				sum += Source[samplePos] * weight;
-				totalWeight += weight;
-			}
-		}
-	}
+    for (int z = -blurRadius; z <= blurRadius; z++) {
+        for (int y = -blurRadius; y <= blurRadius; y++) {
+            for (int x = -blurRadius; x <= blurRadius; x++) {
+                float dst = length(float3(x, y, z)) / blurRadius;
+                float weight = pow(2.5, -10 * dst);
+                int3 samplePos = id + int3(x, y, z);
+                // Clamp each axis individually
+                samplePos = int3(
+                    clamp(samplePos.x, 0, textureSize.x - 1),
+                    clamp(samplePos.y, 0, textureSize.y - 1),
+                    clamp(samplePos.z, 0, textureSize.z - 1)
+                );
+                sum += Source[samplePos] * weight;
+                totalWeight += weight;
+            }
+        }
+    }
 
-	//int n = 2 * blurRadius + 1;
-	//int iterations = n * n * n;
-	float average = sum / totalWeight;
-	Result[id] = average;
-	//Result[id] = Source[id];
+    float average = sum / totalWeight;
+    Result[id] = average;
 }
 
