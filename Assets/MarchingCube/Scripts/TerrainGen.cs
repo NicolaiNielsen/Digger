@@ -49,6 +49,12 @@ public class TerrainGen : MonoBehaviour
 	System.Diagnostics.Stopwatch timer_processVertexData;
 	RenderTexture originalMap;
 
+	public GameObject[] plantPrefabs;
+	public GameObject stonePrefab, goldPrefab, diamondPrefab;
+	public float spawnDistance = 50f; // Distance from player to trigger spawn
+
+	public Transform player; // Assign in inspector or find at Start
+
 	void Start()
 	{
 		//Initialize textures so it GPU optimized
@@ -220,6 +226,81 @@ public class TerrainGen : MonoBehaviour
 		// TODO: move somewhere more sensible
 		material.SetTexture("DensityTex", originalMap);
 		//material.SetFloat("planetBoundsSize", boundsSize);
+
+		// Proximity-based spawning
+		foreach (var chunk in chunks)
+		{
+			if (chunk == null) continue;
+			Vector3 chunkCenter = (Vector3)chunk.id * chunk.size + Vector3.one * (chunk.size / 2f);
+			float dist = Vector3.Distance(player.position, chunkCenter);
+
+			if (dist < spawnDistance)
+			{
+				if (!chunk.hasSpawnedPlants)
+				{
+					SpawnPlantsOnChunk(chunk, 10); // e.g. 10 plants per chunk
+					chunk.hasSpawnedPlants = true;
+				}
+				if (!chunk.hasSpawnedResources)
+				{
+					SpawnResourcesInChunk(chunk, 5); // e.g. 5 resources per chunk
+					chunk.hasSpawnedResources = true;
+				}
+			}
+		}
+	}
+
+	// Spawns plants on the surface of a chunk
+	void SpawnPlantsOnChunk(Chunk chunk, int count)
+	{
+		Vector3 chunkCoord = chunk.id * (numPointsPerAxis - 1);
+		float voxelSize = chunkSize / (numPointsPerAxis - 1);
+		Vector3 chunkOrigin = chunkCoord * voxelSize;
+
+		for (int i = 0; i < count; i++)
+		{
+			// Pick a random X and Z in local voxel space
+			int localX = UnityEngine.Random.Range(0, numPointsPerAxis - 1);
+			int localZ = UnityEngine.Random.Range(0, numPointsPerAxis - 1);
+
+			// Raycast from above the chunk to find the surface
+			Vector3 rayOrigin = chunkOrigin + new Vector3(localX * voxelSize, chunkSize * numChunksY, localZ * voxelSize);
+
+			if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, chunkSize * numChunksY * 2f, LayerMask.GetMask("Diggable")))
+			{
+				GameObject prefab = plantPrefabs[UnityEngine.Random.Range(0, plantPrefabs.Length)];
+				Instantiate(prefab, hit.point, Quaternion.identity);
+				Debug.Log($"[Plant] Spawned {prefab.name} at {hit.point} in chunk {chunk.id}");
+			}
+			else
+			{
+				Debug.Log($"[Plant] No surface hit for plant in chunk {chunk.id} at localXZ=({localX},{localZ})");
+			}
+		}
+	}
+
+	void SpawnResourcesInChunk(Chunk chunk, int count)
+	{
+		Vector3 chunkCoord = chunk.id * (numPointsPerAxis - 1);
+		float voxelSize = chunkSize / (numPointsPerAxis - 1);
+		Vector3 chunkOrigin = chunkCoord * voxelSize;
+
+		for (int i = 0; i < count; i++)
+		{
+			int localX = UnityEngine.Random.Range(0, numPointsPerAxis - 1);
+			int localY = UnityEngine.Random.Range(0, (numPointsPerAxis - 1) / 2); // Lower half
+			int localZ = UnityEngine.Random.Range(0, numPointsPerAxis - 1);
+
+			Vector3 pos = chunkOrigin + new Vector3(localX * voxelSize, localY * voxelSize, localZ * voxelSize);
+
+			float r = UnityEngine.Random.value;
+			GameObject prefab = stonePrefab;
+			if (r > 0.98f) prefab = diamondPrefab;
+			else if (r > 0.90f) prefab = goldPrefab;
+
+			Instantiate(prefab, pos, Quaternion.identity);
+			Debug.Log($"[Resource] Spawned {prefab.name} at {pos} in chunk {chunk.id}");
+		}
 	}
 
 	//Test
@@ -251,7 +332,6 @@ public class TerrainGen : MonoBehaviour
 			chunk.Release();
 		}
 	}
-
 
 	void CreateChunks()
 	{
@@ -418,29 +498,29 @@ public class TerrainGen : MonoBehaviour
 		texture.name = name;
 		Debug.Log($"Created 3D Texture: {texture.width}x{texture.height}x{texture.volumeDepth}");
 	}
-private void OnDrawGizmos()
-{
-    if (chunks == null) return;
+// private void OnDrawGizmos()
+// {
+//     if (chunks == null) return;
 
-    // Draw chunk bounds
-    Color chunkBoundsColor = Color.cyan;
-    foreach (var chunk in chunks)
-    {
-        if (chunk == null) continue;
-        chunk.DrawBoundsGizmo(chunkBoundsColor);
-    }
+//     // Draw chunk bounds
+//     Color chunkBoundsColor = Color.cyan;
+//     foreach (var chunk in chunks)
+//     {
+//         if (chunk == null) continue;
+//         chunk.DrawBoundsGizmo(chunkBoundsColor);
+//     }
 
-    // Draw last terraform area
-    if (lastTerraformPoint != null)
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(lastTerraformPoint.Value, lastTerraformRadius);
+//     // Draw last terraform area
+//     if (lastTerraformPoint != null)
+//     {
+//         Gizmos.color = Color.red;
+//         Gizmos.DrawWireSphere(lastTerraformPoint.Value, lastTerraformRadius);
 
-        // Optional: Draw voxel/texture edit box
-        // Gizmos.color = new Color(1f, 0.5f, 0f, 0.2f);
-        // Gizmos.DrawWireCube(lastTerraformPoint.Value, Vector3.one * lastTerraformRadius * 2f);
-    }
-}
+//         // Optional: Draw voxel/texture edit box
+//         // Gizmos.color = new Color(1f, 0.5f, 0f, 0.2f);
+//         // Gizmos.DrawWireCube(lastTerraformPoint.Value, Vector3.one * lastTerraformRadius * 2f);
+//     }
+// }
 
 
 }

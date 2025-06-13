@@ -8,6 +8,8 @@ public class Chunk
 	public Vector3 centre;
 	public float size;
 	public Mesh mesh;
+	public bool hasSpawnedPlants = false;
+	public bool hasSpawnedResources = false;
 
 	public ComputeBuffer pointsBuffer;
 	int numPointsPerAxis;
