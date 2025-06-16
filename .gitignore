@@ -72,3 +72,46 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Ignore all downloaded/third-party assets (examples)
+Assets/ThirdParty/
+Assets/Plugins/
+Assets/ExternalAssets/
+Assets/DownloadedAssets/
+Assets/AssetStoreTools/
+Assets/Samples/
+Assets/Standard Assets/
+Assets/Art/
+Assets/Models/
+Assets/Textures/
+Assets/Audio/
+Assets/Fonts/
+Assets/Animations/
+Assets/UnityASsets/
+
+# Ignore specific asset types (optional)
+*.fbx
+*.obj
+*.png
+*.jpg
+*.wav
+*.mp3
+*.ogg
+*.tga
+*.psd
+*.blend
+*.mat
+*.anim
+*.controller
+*.prefab
+*.unitypackage
+
+# Unity generated and cache folders (always ignore)
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+UserSettings/
+MemoryCaptures/
