@@ -82,7 +82,7 @@ public class PlayerInteract : MonoBehaviour
 		// }
 		// Subtract terrain
 		if (inputManager.onFoot.Dig.triggered)
-		{
+		{ //Tets
 			isTerraforming = true;
 			Debug.Log("Terraform radius: " + terraformRadius);
 			TerrainGen.Terraform(terraformPoint, weight, terraformRadius);
