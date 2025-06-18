@@ -77,8 +77,6 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     /// <summary>
     /// Provides access to the underlying asset instance.
     /// </summary>
-    /// 
-    /// Tests
     public InputActionAsset asset { get; }
 
     /// <summary>
