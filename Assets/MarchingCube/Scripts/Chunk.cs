@@ -4,7 +4,6 @@ using Unity.Mathematics;
 
 public class Chunk
 {
-
 	public Vector3 centre;
 	public float size;
 	public Mesh mesh;
@@ -53,61 +52,74 @@ public class Chunk
 	}
 
 	public void CreateMesh(VertexData[] vertexData, int numVertices, bool useFlatShading)
-	{
-		vertexIndexMap.Clear();
-		processedVertices.Clear();
-		processedNormals.Clear();
-		processedTriangles.Clear();
+{
+    vertexIndexMap.Clear();
+    processedVertices.Clear();
+    processedNormals.Clear();
+    processedTriangles.Clear();
 
-		int triangleIndex = 0;
+    int triangleIndex = 0;
 
-		for (int i = 0; i < numVertices; i++)
-		{
-			VertexData data = vertexData[i];
+    for (int i = 0; i < numVertices; i++)
+    {
+        VertexData data = vertexData[i];
 
-			int sharedVertexIndex;
-			if (!useFlatShading && vertexIndexMap.TryGetValue(data.id, out sharedVertexIndex))
-			{
-				processedTriangles.Add(sharedVertexIndex);
-			}
-			else
-			{
-				if (!useFlatShading)
-				{
-					vertexIndexMap.Add(data.id, triangleIndex);
-				}
-				processedVertices.Add(data.position);
-				processedNormals.Add(data.normal);
-				processedTriangles.Add(triangleIndex);
-				triangleIndex++;
-			}
-		}
+        int sharedVertexIndex;
+        if (!useFlatShading && vertexIndexMap.TryGetValue(data.id, out sharedVertexIndex))
+        {
+            processedTriangles.Add(sharedVertexIndex);
+        }
+        else
+        {
+            if (!useFlatShading)
+            {
+                vertexIndexMap.Add(data.id, triangleIndex);
+            }
+            processedVertices.Add(data.position);
+            processedNormals.Add(data.normal);
+            processedTriangles.Add(triangleIndex);
+            triangleIndex++;
+        }
+    }
 
-		collider.sharedMesh = null;
+    // Generate UVs based on vertex positions (planar mapping on XZ plane)
+    List<Vector2> uvs = new List<Vector2>(processedVertices.Count);
+    for (int i = 0; i < processedVertices.Count; i++)
+    {
+        Vector3 v = processedVertices[i];
+        // Map X and Z to UVs in [0,1] range based on chunk size
+        float u = (v.x / size) + 0.5f;
+        float w = (v.z / size) + 0.5f;
+        uvs.Add(new Vector2(u, w));
+    }
 
-		mesh.Clear();
-		mesh.SetVertices(processedVertices);
-		mesh.SetTriangles(processedTriangles, 0, true);
+    collider.sharedMesh = null;
 
-		if (useFlatShading)
-		{
-			mesh.RecalculateNormals();
-		}
-		else
-		{
-			mesh.SetNormals(processedNormals);
-		}
+    mesh.Clear();
+    mesh.SetVertices(processedVertices);
+    mesh.SetUVs(0, uvs); // Assign generated UVs
+    mesh.SetTriangles(processedTriangles, 0, true);
 
-		// Only assign to collider if mesh has vertices
-		if (mesh.vertexCount > 0)
-		{
-			collider.sharedMesh = mesh;
-		}
-		else
-		{
-			collider.sharedMesh = null;
-		}
-	}
+    if (useFlatShading)
+    {
+        mesh.RecalculateNormals();
+    }
+    else
+    {
+        mesh.SetNormals(processedNormals);
+    }
+
+    // Only assign to collider if mesh has vertices
+    if (mesh.vertexCount > 0)
+    {
+        collider.sharedMesh = mesh;
+    }
+    else
+    {
+        collider.sharedMesh = null;
+    }
+}
+
 
 	public struct PointData
 	{

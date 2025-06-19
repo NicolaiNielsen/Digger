@@ -123,7 +123,7 @@ void ProcessCube (int3 id : SV_DispatchThreadID)
     // Calculate coordinates of each corner of the current cube
     int3 cornerCoords[8];
     cornerCoords[0] = coord + int3(0, 0, 0);
-    cornerCoords[1] = coord + int3(1, 0, 0);
+    cornerCoords[1] = coord + int3(1, 0, 0);    
     cornerCoords[2] = coord + int3(1, 0, 1);
     cornerCoords[3] = coord + int3(0, 0, 1);
     cornerCoords[4] = coord + int3(0, 1, 0);
@@ -166,9 +166,9 @@ void ProcessCube (int3 id : SV_DispatchThreadID)
 
         // Create triangle
         Triangle tri;
-        tri.vertexA = vertexC;
+        tri.vertexA = vertexA;
         tri.vertexB = vertexB;
-        tri.vertexC = vertexA;
+        tri.vertexC = vertexC;
         triangles.Append(tri);
     }
 }

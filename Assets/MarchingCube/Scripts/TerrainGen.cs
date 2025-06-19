@@ -17,8 +17,6 @@ public class TerrainGen : MonoBehaviour
 	public int numChunksZ = 2;
 	public float isoLevel = 0f;
 	public bool useFlatShading;
-	Vector3? lastTerraformPoint = null;
-	float lastTerraformRadius = 1f;
 
 	public float noiseScale;
 	public float noiseHeightMultiplier;
@@ -31,7 +29,6 @@ public class TerrainGen : MonoBehaviour
 	public ComputeShader blurCompute;
 	public ComputeShader editCompute;
 	public Material material;
-
 
 	// Private
 	ComputeBuffer triangleBuffer;
@@ -57,11 +54,8 @@ public class TerrainGen : MonoBehaviour
 
 	void Start()
 	{
-		//Initialize textures so it GPU optimized
 		InitTextures();
-		//Creates a buffer which is a memory block on the CPU
 		CreateBuffers();
-		//Creates a chunk 
 		CreateChunks();
 
 		var sw = System.Diagnostics.Stopwatch.StartNew();
@@ -141,19 +135,12 @@ public class TerrainGen : MonoBehaviour
 		int sizeX = rawDensityTexture.width;
 		int sizeY = rawDensityTexture.height;
 		int sizeZ = rawDensityTexture.volumeDepth;
-
-		//Debug.Log(sizeX);
-		//Debug.Log(sizeY);
-		//Debug.Log(sizeZ);
 		densityCompute.SetInts("textureSize", sizeX, sizeY, sizeZ);
-
 		densityCompute.SetFloat("chunkSize", chunkSize);
-		densityCompute.SetFloat("noiseHeightMultiplier", 0f);
-		densityCompute.SetFloat("noiseScale", 0f);
+		densityCompute.SetFloat("noiseScale", 0.05f);         // ← lower = bigger bumps
+densityCompute.SetFloat("heightMultiplier", 1.0f);
 		//Assume we are dipatching
 		ComputeHelper.Dispatch(densityCompute, sizeX, sizeY, sizeZ);
-
-		
 		ProcessDensityMap();
 	}
 
@@ -181,7 +168,7 @@ public class TerrainGen : MonoBehaviour
 		// Opensource contirubtion
 		int numVoxelsPerAxis = numPointsPerAxis - 1;
 		int marchKernel = 0;
-	
+
 		meshCompute.SetInts("textureSize", rawDensityTexture.width, rawDensityTexture.height, rawDensityTexture.volumeDepth);
 		meshCompute.SetInt("numPointsPerAxis", numPointsPerAxis);
 		meshCompute.SetFloat("isoLevel", isoLevel);
@@ -198,7 +185,7 @@ public class TerrainGen : MonoBehaviour
 		meshCompute.SetVector("chunkCoord", chunkCoord);
 		Debug.Log("numVoxelsPerAxis: " + numVoxelsPerAxis);
 		ComputeHelper.Dispatch(meshCompute, numVoxelsPerAxis, numVoxelsPerAxis, numVoxelsPerAxis, marchKernel);
-		
+
 		// Create mesh
 		int[] vertexCountData = new int[1];
 		triCountBuffer.SetData(vertexCountData);
@@ -227,81 +214,29 @@ public class TerrainGen : MonoBehaviour
 		material.SetTexture("DensityTex", originalMap);
 		//material.SetFloat("planetBoundsSize", boundsSize);
 
-		// Proximity-based spawning
-		foreach (var chunk in chunks)
-		{
-			if (chunk == null) continue;
-			Vector3 chunkCenter = (Vector3)chunk.id * chunk.size + Vector3.one * (chunk.size / 2f);
-			float dist = Vector3.Distance(player.position, chunkCenter);
+		// // Proximity-based spawning
+		// foreach (var chunk in chunks)
+		// {
+		// 	if (chunk == null) continue;
+		// 	Vector3 chunkCenter = (Vector3)chunk.id * chunk.size + Vector3.one * (chunk.size / 2f);
+		// 	float dist = Vector3.Distance(player.position, chunkCenter);
 
-			if (dist < spawnDistance)
-			{
-				if (!chunk.hasSpawnedPlants)
-				{
-					SpawnPlantsOnChunk(chunk, 10); // e.g. 10 plants per chunk
-					chunk.hasSpawnedPlants = true;
-				}
-				if (!chunk.hasSpawnedResources)
-				{
-					SpawnResourcesInChunk(chunk, 5); // e.g. 5 resources per chunk
-					chunk.hasSpawnedResources = true;
-				}
-			}
-		}
+		// 	if (dist < spawnDistance)
+		// 	{
+		// 		if (!chunk.hasSpawnedPlants)
+		// 		{
+		// 			SpawnPlantsOnChunk(chunk, 10); // e.g. 10 plants per chunk
+		// 			chunk.hasSpawnedPlants = true;
+		// 		}
+		// 		if (!chunk.hasSpawnedResources)
+		// 		{
+		// 			SpawnResourcesInChunk(chunk, 5); // e.g. 5 resources per chunk
+		// 			chunk.hasSpawnedResources = true;
+		// 		}
+		// 	}
+		// }
 	}
 
-	// Spawns plants on the surface of a chunk
-	void SpawnPlantsOnChunk(Chunk chunk, int count)
-	{
-		Vector3 chunkCoord = chunk.id * (numPointsPerAxis - 1);
-		float voxelSize = chunkSize / (numPointsPerAxis - 1);
-		Vector3 chunkOrigin = chunkCoord * voxelSize;
-
-		for (int i = 0; i < count; i++)
-		{
-			// Pick a random X and Z in local voxel space
-			int localX = UnityEngine.Random.Range(0, numPointsPerAxis - 1);
-			int localZ = UnityEngine.Random.Range(0, numPointsPerAxis - 1);
-
-			// Raycast from above the chunk to find the surface
-			Vector3 rayOrigin = chunkOrigin + new Vector3(localX * voxelSize, chunkSize * numChunksY, localZ * voxelSize);
-
-			if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit, chunkSize * numChunksY * 2f, LayerMask.GetMask("Diggable")))
-			{
-				GameObject prefab = plantPrefabs[UnityEngine.Random.Range(0, plantPrefabs.Length)];
-				Instantiate(prefab, hit.point, Quaternion.identity);
-				Debug.Log($"[Plant] Spawned {prefab.name} at {hit.point} in chunk {chunk.id}");
-			}
-			else
-			{
-				Debug.Log($"[Plant] No surface hit for plant in chunk {chunk.id} at localXZ=({localX},{localZ})");
-			}
-		}
-	}
-
-	void SpawnResourcesInChunk(Chunk chunk, int count)
-	{
-		Vector3 chunkCoord = chunk.id * (numPointsPerAxis - 1);
-		float voxelSize = chunkSize / (numPointsPerAxis - 1);
-		Vector3 chunkOrigin = chunkCoord * voxelSize;
-
-		for (int i = 0; i < count; i++)
-		{
-			int localX = UnityEngine.Random.Range(0, numPointsPerAxis - 1);
-			int localY = UnityEngine.Random.Range(0, (numPointsPerAxis - 1) / 2); // Lower half
-			int localZ = UnityEngine.Random.Range(0, numPointsPerAxis - 1);
-
-			Vector3 pos = chunkOrigin + new Vector3(localX * voxelSize, localY * voxelSize, localZ * voxelSize);
-
-			float r = UnityEngine.Random.value;
-			GameObject prefab = stonePrefab;
-			if (r > 0.98f) prefab = diamondPrefab;
-			else if (r > 0.90f) prefab = goldPrefab;
-
-			Instantiate(prefab, pos, Quaternion.identity);
-			Debug.Log($"[Resource] Spawned {prefab.name} at {pos} in chunk {chunk.id}");
-		}
-	}
 
 	//Test
 	//Test commitg
@@ -347,16 +282,11 @@ public class TerrainGen : MonoBehaviour
 				{
 					Vector3Int coord = new Vector3Int(x, y, z);
 					Debug.Log($"Printing chunk: {{numChunksY: {y}, numChunksX: {x}, numChunksZ: {z}}}");
-					//Debug.Log($"posX: {posX}");
-					//Debug.Log($"posY: {posY}");
-					//Debug.Log($"posZ: {posZ}");
 					GameObject meshHolder = new GameObject($"Chunk ({x}, {y}, {z})");
 					meshHolder.transform.parent = transform;
 					meshHolder.layer = gameObject.layer;
 					meshHolder.transform.tag = "Diggable";
 					meshHolder.layer = LayerMask.NameToLayer("Interactable");
-					//Passes ind the index of the cube
-					//Pases in the center too
 					Chunk chunk = new Chunk(coord, chunkSize, numPointsPerAxis, meshHolder);
 					chunk.SetMaterial(material);
 					chunks[i] = chunk;
@@ -436,9 +366,11 @@ public class TerrainGen : MonoBehaviour
 			blurCompute.SetInts("brushCentre", editX, editY, editZ);
 			blurCompute.SetInt("blurRadius", blurRadius);
 			blurCompute.SetInt("brushRadius", editRadius);
-			int kx = Mathf.Min(sizeX, (editRadius + blurRadius) * 2);
-			int ky = Mathf.Min(sizeY, (editRadius + blurRadius) * 2);
-			int kz = Mathf.Min(sizeZ, (editRadius + blurRadius) * 2);
+			int boxRadius = editRadius + blurRadius + 1;
+
+			int kx = Mathf.Min(sizeX, boxRadius);
+			int ky = Mathf.Min(sizeY, boxRadius);
+			int kz = Mathf.Min(sizeZ, boxRadius);
 			Debug.Log($"Dispatching blurCompute with size {kx}x{ky}x{kz}...");
 			ComputeHelper.Dispatch(blurCompute, kx, ky, kz);
 		}
@@ -464,40 +396,36 @@ public class TerrainGen : MonoBehaviour
 			}
 		}
 		Debug.Log($"Chunks regenerated: {affectedChunks}");
-
-		// At the end of Terraform, for debugging:
-		//GenerateAllChunks();
-		
-		lastTerraformPoint = point;
-		lastTerraformRadius = radius;
 	}
 
-	void Create3DTexture(ref RenderTexture texture, int width, int height, int depth, string name)
-	{
-		//
-		var format = UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat;
-		if (texture == null || !texture.IsCreated() || texture.width != width || texture.height != height || texture.volumeDepth != depth || texture.graphicsFormat != format)
+		void Create3DTexture(ref RenderTexture texture, int width, int height, int depth, string name)
 		{
-			//Debug.Log ("Create tex: update noise: " + updateNoise);
-			if (texture != null)
+			//
+			var format = UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat;
+			if (texture == null || !texture.IsCreated() || texture.width != width || texture.height != height || texture.volumeDepth != depth || texture.graphicsFormat != format)
 			{
-				texture.Release();
+				//Debug.Log ("Create tex: update noise: " + updateNoise);
+				if (texture != null)
+				{
+					texture.Release();
+				}
+				const int numBitsInDepthBuffer = 0;
+				texture = new RenderTexture(width, height, numBitsInDepthBuffer);
+				texture.graphicsFormat = format;
+				texture.volumeDepth = depth;
+				texture.enableRandomWrite = true;
+				texture.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
+
+
+				texture.Create();
 			}
-			const int numBitsInDepthBuffer = 0;
-			texture = new RenderTexture(width, height, numBitsInDepthBuffer);
-			texture.graphicsFormat = format;
-			texture.volumeDepth = depth;
-			texture.enableRandomWrite = true;
-			texture.dimension = UnityEngine.Rendering.TextureDimension.Tex3D;
-
-
-			texture.Create();
+			texture.wrapMode = TextureWrapMode.Repeat;
+			texture.filterMode = FilterMode.Bilinear;
+			texture.name = name;
+			Debug.Log($"Created 3D Texture: {texture.width}x{texture.height}x{texture.volumeDepth}");
 		}
-		texture.wrapMode = TextureWrapMode.Repeat;
-		texture.filterMode = FilterMode.Bilinear;
-		texture.name = name;
-		Debug.Log($"Created 3D Texture: {texture.width}x{texture.height}x{texture.volumeDepth}");
 	}
+
 // private void OnDrawGizmos()
 // {
 //     if (chunks == null) return;
@@ -523,4 +451,3 @@ public class TerrainGen : MonoBehaviour
 // }
 
 
-}

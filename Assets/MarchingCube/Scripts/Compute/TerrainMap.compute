@@ -1,34 +1,38 @@
 #pragma kernel CSMain
+#include "Includes/Noise.compute"
 
 RWTexture3D<float> DensityTexture;
+
 int3 textureSize;
+float noiseScale;         // ~0.05f
+float heightMultiplier;   // ~10.0f
 
-float calculateDensity(int3 cell) {
-    float2 center = float2(textureSize.x, textureSize.z) * 0.5;
-    float2 pos = float2(cell.x, cell.z);
-
-    float dist = length(pos - center);
-
-    // Smaller spacing and amplitude for more, smaller circles
-    float circleSpacing = 1;   // Lower = more circles
-    float circleAmplitude = 0.5; // Lower = smaller ridges
-
-    float rake = sin(dist / circleSpacing) * circleAmplitude;
-
-    float groundLevel = textureSize.y * 0.4 + rake;
-
-    return cell.y - groundLevel;
+float fractalNoise(float3 p)
+{
+    float n = 0.0;
+    n += snoise(p * 0.1) * 1.0;
+    n += snoise(p * 0.2) * 0.5;
+    n += snoise(p * 0.4) * 0.25;
+    n += snoise(p * 0.8) * 0.125;
+    return n;
 }
 
-[numthreads(8,8,8)]
-void CSMain (int3 id : SV_DispatchThreadID)
+float calculateDensity(int3 cell)
 {
-    if (id.x >= textureSize.x || id.y >= textureSize.y || id.z >= textureSize.z)
+    float3 p = float3(cell) * noiseScale; // ✅ world-space noise
+
+    float noise = fractalNoise(p);
+
+    float surface = noise * heightMultiplier + (textureSize.y * 0.5);
+
+    return surface - cell.y;
+}
+
+[numthreads(8, 8, 8)]
+void CSMain(int3 id : SV_DispatchThreadID)
+{
+    if (any(id >= textureSize))
         return;
 
     DensityTexture[id] = calculateDensity(id);
 }
-
-
-
-

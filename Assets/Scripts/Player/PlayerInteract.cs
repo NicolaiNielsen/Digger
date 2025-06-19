@@ -13,8 +13,8 @@ public class PlayerInteract : MonoBehaviour
     public event System.Action onTerrainModified;
 
 	public float terraformRadius;
-    public float terraformSpeedNear = 0.1f;
-    public float terraformSpeedFar = 0.25f;
+    public float terraformSpeedNear;
+    public float terraformSpeedFar;
 
     TerrainGen TerrainGen;
 
@@ -81,11 +81,11 @@ public class PlayerInteract : MonoBehaviour
 		// 	//firstPersonController.NotifyTerrainChanged(terraformPoint, terraformRadius);
 		// }
 		// Subtract terrain
-		if (inputManager.onFoot.Dig.triggered)
+		if (inputManager.onFoot.Dig.IsPressed())
 		{
 			isTerraforming = true;
 			Debug.Log("Terraform radius: " + terraformRadius);
-			TerrainGen.Terraform(terraformPoint, weight, terraformRadius);
+			TerrainGen.Terraform(terraformPoint, -weight, terraformRadius);
 			Debug.Log(inputManager.onFoot.Dig.triggered);
 			Debug.Log("WE calling onfoot dig Triggerd?");
 		}

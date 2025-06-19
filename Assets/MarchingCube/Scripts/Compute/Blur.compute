@@ -16,6 +16,13 @@ void Blur (int3 id : SV_DispatchThreadID)
         return;
     }
 
+    float3 offsetFromCenter = (float3)id - brushCentre;
+    float distanceToCenter = length(offsetFromCenter);
+
+    // Only blur inside the brush radius (makes it spherical)
+    if (distanceToCenter > brushRadius)
+        return;
+
     float sum = 0;
     float totalWeight = 0;
 
