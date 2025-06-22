@@ -103,6 +103,8 @@ void ProcessCube (int3 id : SV_DispatchThreadID)
         return;
     }
 
+    //TEsts
+
 
     //We then calculate the coord 
     //id which is the chunk index
