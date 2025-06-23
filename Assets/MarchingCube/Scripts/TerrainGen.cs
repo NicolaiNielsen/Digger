@@ -366,13 +366,9 @@ densityCompute.SetFloat("heightMultiplier", 1.0f);
 			blurCompute.SetInts("brushCentre", editX, editY, editZ);
 			blurCompute.SetInt("blurRadius", blurRadius);
 			blurCompute.SetInt("brushRadius", editRadius);
-			int boxRadius = editRadius + blurRadius + 1;
-
-			int kx = Mathf.Min(sizeX, boxRadius);
-			int ky = Mathf.Min(sizeY, boxRadius);
-			int kz = Mathf.Min(sizeZ, boxRadius);
-			Debug.Log($"Dispatching blurCompute with size {kx}x{ky}x{kz}...");
-			ComputeHelper.Dispatch(blurCompute, kx, ky, kz);
+			// Always dispatch over the full texture to ensure blur is applied after digging
+			Debug.Log($"Dispatching blurCompute with size {sizeX}x{sizeY}x{sizeZ}...");
+			ComputeHelper.Dispatch(blurCompute, sizeX, sizeY, sizeZ);
 		}
 
 		// Calculate world radius for affected chunks

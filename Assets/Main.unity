@@ -734,16 +734,16 @@ MonoBehaviour:
   numChunksY: 1
   numChunksZ: 5
   isoLevel: 0
-  useFlatShading: 1
+  useFlatShading: 0
   noiseScale: 0.05
   noiseHeightMultiplier: 10
-  blurMap: 0
-  blurRadius: 1
+  blurMap: 1
+  blurRadius: 0
   meshCompute: {fileID: 7200000, guid: cdd647ae6cdf1884784f00b2d886710c, type: 3}
   densityCompute: {fileID: 7200000, guid: 010ef0f8809d01043a14d2b2e56810c1, type: 3}
   blurCompute: {fileID: 7200000, guid: f07528ffd36f7df4ab037a391fc9e17c, type: 3}
   editCompute: {fileID: 7200000, guid: a4501189317bb624f975926c78d89478, type: 3}
-  material: {fileID: 2100000, guid: cb3973bbf6e1f0a498e5db9a656f2fca, type: 2}
+  material: {fileID: 2100000, guid: cad7670472ccf2a4e8dedd5581460390, type: 2}
   rawDensityTexture: {fileID: 0}
   processedDensityTexture: {fileID: 0}
   plantPrefabs: []
@@ -1158,7 +1158,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4735328652354295582, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
       propertyPath: terraformRadius
-      value: 0.2
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4735328652354295582, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
       propertyPath: terraformSpeedFar

@@ -24,6 +24,8 @@ public class Chunk
 	List<Vector3> processedNormals;
 	List<int> processedTriangles;
 
+	
+
 
 	public Chunk(Vector3Int coord, float size, int numPointsPerAxis, GameObject meshHolder)
 	{
@@ -50,8 +52,7 @@ public class Chunk
 		processedNormals = new List<Vector3>();
 		processedTriangles = new List<int>();
 	}
-
-	public void CreateMesh(VertexData[] vertexData, int numVertices, bool useFlatShading)
+public void CreateMesh(VertexData[] vertexData, int numVertices, bool useFlatShading)
 {
     vertexIndexMap.Clear();
     processedVertices.Clear();
@@ -59,6 +60,9 @@ public class Chunk
     processedTriangles.Clear();
 
     int triangleIndex = 0;
+
+    // New: Create list for vertex colors
+    List<Color> vertexColors = new List<Color>();
 
     for (int i = 0; i < numVertices; i++)
     {
@@ -78,6 +82,14 @@ public class Chunk
             processedVertices.Add(data.position);
             processedNormals.Add(data.normal);
             processedTriangles.Add(triangleIndex);
+
+            // --------- Surface mask logic -----------
+            // You can change the threshold (e.g., 0.7f) for more/less strict "top"
+            bool isTopSurface = data.normal.y > 0.7f;
+            // Color.green = (0,1,0,1); Color.white = (1,1,1,1)
+            vertexColors.Add(isTopSurface ? Color.green : Color.white);
+            // ----------------------------------------
+
             triangleIndex++;
         }
     }
@@ -87,7 +99,6 @@ public class Chunk
     for (int i = 0; i < processedVertices.Count; i++)
     {
         Vector3 v = processedVertices[i];
-        // Map X and Z to UVs in [0,1] range based on chunk size
         float u = (v.x / size) + 0.5f;
         float w = (v.z / size) + 0.5f;
         uvs.Add(new Vector2(u, w));
@@ -108,6 +119,10 @@ public class Chunk
     {
         mesh.SetNormals(processedNormals);
     }
+
+    // --------- Assign vertex colors! ----------
+    mesh.SetColors(vertexColors);
+    // ------------------------------------------
 
     // Only assign to collider if mesh has vertices
     if (mesh.vertexCount > 0)
