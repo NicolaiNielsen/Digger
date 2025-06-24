@@ -24,8 +24,6 @@ public class Chunk
 	List<Vector3> processedNormals;
 	List<int> processedTriangles;
 
-	
-
 
 	public Chunk(Vector3Int coord, float size, int numPointsPerAxis, GameObject meshHolder)
 	{

@@ -6,6 +6,10 @@ Shader "Custom/Terrain_TriplanarTextureNormal_URP"
         _GrassNormal ("Grass Normal", 2D) = "bump" {}
         _RockTex ("Rock Texture", 2D) = "white" {}
         _RockNormal ("Rock Normal", 2D) = "bump" {}
+        _GrassTint ("Grass Tint", Color) = (1.4,1.4,1.4,1)      // Brighter default!
+        _RockTint ("Rock Tint", Color) = (1.2,1.2,1.2,1)        // Brighter default!
+        _GrassBoost ("Grass Brightness", Float) = 1.2           // You can tweak in inspector
+        _RockBoost ("Rock Brightness", Float) = 1.1             // You can tweak in inspector
         _HeightGrass ("Grass Height World Y", Float) = 0.5
         _HeightBlend ("Grass Blend Range", Float) = 0.25
         _TriplanarGrassScale ("Triplanar Grass Scale", Float) = 30
@@ -40,6 +44,10 @@ Shader "Custom/Terrain_TriplanarTextureNormal_URP"
                 float _HeightBlend;
                 float _TriplanarGrassScale;
                 float _TriplanarRockScale;
+                float4 _GrassTint;
+                float4 _RockTint;
+                float _GrassBoost;
+                float _RockBoost;
             CBUFFER_END
 
             TEXTURE2D(_GrassTex);     SAMPLER(sampler_GrassTex);
@@ -60,7 +68,6 @@ Shader "Custom/Terrain_TriplanarTextureNormal_URP"
                 return colX * blendWeight.x + colY * blendWeight.y + colZ * blendWeight.z;
             }
 
-            // Triplanar normal (as described above)
             float3 triplanarNormal(Texture2D normalTex, SamplerState normalSamp, float3 worldPos, float3 worldNormal, float scale)
             {
                 float3 scaledPos = worldPos / scale;
@@ -86,8 +93,13 @@ Shader "Custom/Terrain_TriplanarTextureNormal_URP"
 
             float4 frag(Varyings IN) : SV_Target
             {
+                // Sample textures
                 float4 grassCol = triplanarSample(_GrassTex, sampler_GrassTex, IN.worldPos, IN.worldNormal, _TriplanarGrassScale);
                 float4 rockCol  = triplanarSample(_RockTex, sampler_RockTex, IN.worldPos, IN.worldNormal, _TriplanarRockScale);
+
+                // Apply tint & brightness boost
+                grassCol.rgb *= _GrassTint.rgb * _GrassBoost;
+                rockCol.rgb  *= _RockTint.rgb * _RockBoost;
 
                 float3 grassNorm = triplanarNormal(_GrassNormal, sampler_GrassNormal, IN.worldPos, IN.worldNormal, _TriplanarGrassScale);
                 float3 rockNorm  = triplanarNormal(_RockNormal, sampler_RockNormal, IN.worldPos, IN.worldNormal, _TriplanarRockScale);
@@ -97,10 +109,10 @@ Shader "Custom/Terrain_TriplanarTextureNormal_URP"
                 float4 baseCol = lerp(grassCol, rockCol, heightT);
                 float3 baseNorm = normalize(lerp(grassNorm, rockNorm, heightT));
 
-                // Basic diffuse lighting (Lambertian, for demo)
+                // Lighting: more ambient to avoid darkness!
                 float3 lightDir = normalize(float3(0.4, 0.8, 0.3));
                 float NdotL = saturate(dot(baseNorm, lightDir));
-                float3 litCol = baseCol.rgb * (0.3 + 0.7 * NdotL);
+                float3 litCol = baseCol.rgb * (0.6 + 0.7 * NdotL); // More ambient light!
 
                 return float4(litCol, 1);
             }

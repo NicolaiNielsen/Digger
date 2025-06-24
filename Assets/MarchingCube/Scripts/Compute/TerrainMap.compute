@@ -7,24 +7,10 @@ int3 textureSize;
 float noiseScale;         // ~0.05f
 float heightMultiplier;   // ~10.0f
 
-float fractalNoise(float3 p)
-{
-    float n = 0.0;
-    n += snoise(p * 0.1) * 1.0;
-    n += snoise(p * 0.2) * 0.5;
-    n += snoise(p * 0.4) * 0.25;
-    n += snoise(p * 0.8) * 0.125;
-    return n;
-}
-
 float calculateDensity(int3 cell)
 {
-    float3 p = float3(cell) * noiseScale; // ✅ world-space noise
-
-    float noise = fractalNoise(p);
-
-    float surface = noise * heightMultiplier + (textureSize.y * 0.5);
-
+    // Flat surface at y = textureSize.y * 0.5
+    float surface = textureSize.y * 0.5;
     return surface - cell.y;
 }
 
