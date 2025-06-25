@@ -41,10 +41,12 @@ public class PlayerInteract : MonoBehaviour
 
         int numIterations = 5;
 
+        float digDistance = 3f; // Match this to your resource pickup raycast distance
+
         for (int i = 0; i < numIterations; i++)
 		{
 			float rayRadius = terraformRadius * Mathf.Lerp(0.01f, 1, i / (numIterations - 1f));
-			if (Physics.SphereCast(cam.transform.position, rayRadius, cam.transform.forward, out hit, 1000, mask))
+			if (Physics.SphereCast(cam.transform.position, rayRadius, cam.transform.forward, out hit, digDistance, mask))
 			{
 				Debug.Log("WE HITTING SOMETHING?");
 				lastTerraformPointLocal = MathUtility.WorldToLocalVector(cam.transform.rotation, hit.point);

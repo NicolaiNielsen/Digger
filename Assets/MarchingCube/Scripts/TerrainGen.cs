@@ -398,9 +398,9 @@ densityCompute.SetFloat("heightMultiplier", 1.0f);
 				affectedChunks++;
 			}
 		}
-		TryPickupResourceAtCursor();
+		//TryPickupResourceAtCursor();
 		// Pickup resources near the dig point, using the same radius as dig
-        //TryPickupNearbyResources(point, radius * 0.7f);
+        TryPickupNearbyResources(point, radius * 0.7f);
 	}
 
 		void Create3DTexture(ref RenderTexture texture, int width, int height, int depth, string name)
@@ -440,26 +440,12 @@ densityCompute.SetFloat("heightMultiplier", 1.0f);
         Debug.Log($"Added {amount} {resourceType} to inventory. Total: {inventory[resourceType]}");
     }
 
-    // Only pick up resources if the dig directly hits them (precise)
+    // Only pick up a resource if the dig ray directly hits it
     void TryPickupNearbyResources(Vector3 digPosition, float radius)
     {
-        Collider[] hits = Physics.OverlapSphere(digPosition, 0.05f); // very small radius
-        foreach (var hit in hits)
-        {
-            ResourcePickup pickup = hit.GetComponent<ResourcePickup>();
-            if (pickup != null)
-            {
-                AddToInventory(pickup.resourceType, 1);
-                Destroy(pickup.gameObject);
-                Debug.Log($"Picked up {pickup.resourceType}!");
-            }
-        }
-    }
-
-    void TryPickupResourceAtCursor()
-    {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, 100f))
+        // Raycast from the camera through the dig position
+        Ray ray = Camera.main.ScreenPointToRay(Camera.main.WorldToScreenPoint(digPosition));
+        if (Physics.Raycast(ray, out RaycastHit hit, 3f))
         {
             ResourcePickup pickup = hit.collider.GetComponent<ResourcePickup>();
             if (pickup != null)
@@ -470,6 +456,21 @@ densityCompute.SetFloat("heightMultiplier", 1.0f);
             }
         }
     }
+
+    // Checks if a resource is exposed (has air nearby)
+    bool IsResourceExposed(GameObject resource)
+    {
+        // Use a larger radius and require at least 2 non-resource colliders nearby
+        Collider[] nearby = Physics.OverlapSphere(resource.transform.position, 0.4f); // larger radius
+        int nonResourceCount = 0;
+        foreach (var col in nearby)
+        {
+            if (col.gameObject == resource) continue;
+            if (!col.GetComponent<ResourcePickup>())
+                nonResourceCount++;
+        }
+        // Require at least 2 non-resource colliders nearby to be considered exposed
+        return nonResourceCount >= 2;
+    }
+
 }
-
-
