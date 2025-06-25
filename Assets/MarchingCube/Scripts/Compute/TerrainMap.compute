@@ -10,8 +10,7 @@ float heightMultiplier;   // ~10.0f
 float calculateDensity(int3 cell)
 {
     // Flat surface at y = textureSize.y * 0.5
-    float surface = textureSize.y * 0.5;
-    return surface - cell.y;
+    return cell.y >= textureSize.y - 1 ? -100 : 1.0;
 }
 
 [numthreads(8, 8, 8)]

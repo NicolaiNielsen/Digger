@@ -6,7 +6,6 @@ public class PlayerInteract : MonoBehaviour
     [SerializeField]
     private LayerMask mask;
     [SerializeField]
-    private float distance = 3f;
     private PlayerUI playerUI;
     private InputManager inputManager;
 
@@ -20,8 +19,6 @@ public class PlayerInteract : MonoBehaviour
 
     bool isTerraforming;
     Vector3 lastTerraformPointLocal;
-
-    bool hasHit;
     Vector3 hitPoint;
 
     void Start()
@@ -38,13 +35,11 @@ public class PlayerInteract : MonoBehaviour
         playerUI.UpdateText(string.Empty);
 
         RaycastHit hit;
-        hasHit = false;
 
         bool wasTerraformingLastFrame = isTerraforming;
         isTerraforming = false;
 
         int numIterations = 5;
-        bool rayHitTerrain = false;
 
         for (int i = 0; i < numIterations; i++)
 		{
@@ -54,7 +49,6 @@ public class PlayerInteract : MonoBehaviour
 				Debug.Log("WE HITTING SOMETHING?");
 				lastTerraformPointLocal = MathUtility.WorldToLocalVector(cam.transform.rotation, hit.point);
 				Terraform(hit.point);
-				rayHitTerrain = true;
 				break;
 			}
 		}
@@ -63,7 +57,6 @@ public class PlayerInteract : MonoBehaviour
     void Terraform(Vector3 terraformPoint)
 	{
 		Debug.Log("terraformPoint");
-		hasHit = true;
 		hitPoint = terraformPoint;
 
 		const float dstNear = 10;

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using UnityEngine;
 using Unity.Collections;
 using Unity.Mathematics;
-using UnityEngine;
 using UnityEngine.Rendering;
 
 public class TerrainGen : MonoBehaviour
@@ -39,16 +39,13 @@ public class TerrainGen : MonoBehaviour
 
 	VertexData[] vertexDataArray;
 
-	int totalVerts;
-
-	// Stopwatches
+	// Stopwatches	
 	System.Diagnostics.Stopwatch timer_fetchVertexData;
 	System.Diagnostics.Stopwatch timer_processVertexData;
 	RenderTexture originalMap;
 
-	public GameObject[] plantPrefabs;
-	public GameObject stonePrefab, goldPrefab, diamondPrefab;
-	public float spawnDistance = 50f; // Distance from player to trigger spawn
+	public GameObject stonePrefab, goldPrefab, diamondPrefab, coalPrefab, copperPrefab, rubyPrefab;
+	public float spawnDistance = 10f; // Distance from player to trigger spawn
 
 	public Transform player; // Assign in inspector or find at Start
 
@@ -61,7 +58,6 @@ public class TerrainGen : MonoBehaviour
 		var sw = System.Diagnostics.Stopwatch.StartNew();
 		GenerateAllChunks();
 
-		//Debug.Log("Generation Time: " + sw.ElapsedMilliseconds + " ms");
 		ComputeHelper.CreateRenderTexture3D(ref originalMap, processedDensityTexture);
 		if (processedDensityTexture == null)
 		{
@@ -111,23 +107,12 @@ public class TerrainGen : MonoBehaviour
 		timer_fetchVertexData = new System.Diagnostics.Stopwatch();
 		timer_processVertexData = new System.Diagnostics.Stopwatch();
 
-		totalVerts = 0;
 		ComputeDensity();
 
-		//Debug.Log(chunks.Length);
 		for (int i = 0; i < chunks.Length; i++)
 		{
-			Debug.Log("Generating chunk" + chunks[i].id);
 			GenerateChunk(chunks[i]);
 		}
-		//Debug.Log("Total verts " + totalVerts);
-
-		// Print timers:
-		//Debug.Log("Fetch vertex data: " + timer_fetchVertexData.ElapsedMilliseconds + " ms");
-		//Debug.Log("Process vertex data: " + timer_processVertexData.ElapsedMilliseconds + " ms");
-		//Debug.Log("Sum: " + (timer_fetchVertexData.ElapsedMilliseconds + timer_processVertexData.ElapsedMilliseconds));
-
-
 	}
 
 	void ComputeDensity()
@@ -179,11 +164,7 @@ densityCompute.SetFloat("heightMultiplier", 1.0f);
 		//0,0,0 * numPointsPerAxis - 1
 		//0,0,1 * 36
 		Vector3 chunkCoord = (Vector3)chunk.id * (numPointsPerAxis - 1);
-		Debug.Log("Chunk.id: " + chunk.id);
-		Debug.Log($"Chunk {chunk.id} * {numVoxelsPerAxis} = {chunkCoord}");
-		Debug.Log("ChunkCoord: " + chunkCoord);
 		meshCompute.SetVector("chunkCoord", chunkCoord);
-		Debug.Log("numVoxelsPerAxis: " + numVoxelsPerAxis);
 		ComputeHelper.Dispatch(meshCompute, numVoxelsPerAxis, numVoxelsPerAxis, numVoxelsPerAxis, marchKernel);
 
 		// Create mesh
@@ -205,6 +186,13 @@ densityCompute.SetFloat("heightMultiplier", 1.0f);
 		//CreateMesh(vertices);
 		timer_processVertexData.Start();
 		chunk.CreateMesh(vertexDataArray, numVertices, useFlatShading);
+
+		if (!chunk.hasSpawnedResources)
+		{//initial spawning of chunk
+			SpawnResourcesInChunk(chunk, 10);
+		}
+
+		chunk.hasSpawnedResources = true;
 		timer_processVertexData.Stop();
 	}
 
@@ -212,29 +200,62 @@ densityCompute.SetFloat("heightMultiplier", 1.0f);
 	{
 		// TODO: move somewhere more sensible
 		material.SetTexture("DensityTex", originalMap);
-		//material.SetFloat("planetBoundsSize", boundsSize);
+	}
 
-		// // Proximity-based spawning
-		// foreach (var chunk in chunks)
-		// {
-		// 	if (chunk == null) continue;
-		// 	Vector3 chunkCenter = (Vector3)chunk.id * chunk.size + Vector3.one * (chunk.size / 2f);
-		// 	float dist = Vector3.Distance(player.position, chunkCenter);
 
-		// 	if (dist < spawnDistance)
-		// 	{
-		// 		if (!chunk.hasSpawnedPlants)
-		// 		{
-		// 			SpawnPlantsOnChunk(chunk, 10); // e.g. 10 plants per chunk
-		// 			chunk.hasSpawnedPlants = true;
-		// 		}
-		// 		if (!chunk.hasSpawnedResources)
-		// 		{
-		// 			SpawnResourcesInChunk(chunk, 5); // e.g. 5 resources per chunk
-		// 			chunk.hasSpawnedResources = true;
-		// 		}
-		// 	}
-		// }
+	void SpawnResourcesInChunk(Chunk chunk, int count)
+	{
+		float totalTerrainHeight = numChunksY * chunkSize;
+		float chunkWorldY = chunk.id.y * chunkSize;
+		float chunkYNorm = chunkWorldY / totalTerrainHeight;
+
+		// Fun resource bands: top to bottom
+		// 0.0-0.1: Stone
+		// 0.1-0.2: Copper
+		// 0.2-0.4: Coal
+		// 0.4-0.7: Gold
+		// 0.7-0.9: Ruby
+		// 0.9-1.0: Diamond
+		GameObject prefab = null;
+		string resourceName = "";
+		if (chunkYNorm >= 0.9f && diamondPrefab != null) {
+			prefab = diamondPrefab;
+			resourceName = "Diamond";
+		} else if (chunkYNorm >= 0.7f && rubyPrefab != null) {
+			prefab = rubyPrefab;
+			resourceName = "Ruby";
+		} else if (chunkYNorm >= 0.4f && goldPrefab != null) {
+			prefab = goldPrefab;
+			resourceName = "Gold";
+		} else if (chunkYNorm >= 0.2f && coalPrefab != null) {
+			prefab = coalPrefab;
+			resourceName = "Coal";
+		} else if (chunkYNorm >= 0.1f && copperPrefab != null) {
+			prefab = copperPrefab;
+			resourceName = "Copper";
+		} else if (stonePrefab != null) {
+			prefab = stonePrefab;
+			resourceName = "Stone";
+		}
+
+		if (prefab == null) return;
+
+		Vector3 chunkCoord = chunk.id * (numPointsPerAxis - 1);
+		float voxelSize = chunkSize / (numPointsPerAxis - 1);
+		Vector3 chunkOrigin = chunkCoord * voxelSize;
+
+		for (int i = 0; i < count; i++)
+		{
+			int localX = UnityEngine.Random.Range(0, numPointsPerAxis - 1);
+			int localY = UnityEngine.Random.Range(0, numPointsPerAxis - 1);
+			int localZ = UnityEngine.Random.Range(0, numPointsPerAxis - 1);
+
+			Vector3 pos = chunkOrigin + new Vector3(localX * voxelSize, localY * voxelSize, localZ * voxelSize);
+
+			var obj = Instantiate(prefab, pos, Quaternion.identity, chunk.filter.transform);
+			obj.tag = "Resource";
+			Debug.Log($"[Resource] Spawned {resourceName} at {pos} in chunk {chunk.id}");
+		}
 	}
 
 
@@ -281,7 +302,6 @@ densityCompute.SetFloat("heightMultiplier", 1.0f);
 				for (int z = 0; z < numChunksZ; z++)
 				{
 					Vector3Int coord = new Vector3Int(x, y, z);
-					Debug.Log($"Printing chunk: {{numChunksY: {y}, numChunksX: {x}, numChunksZ: {z}}}");
 					GameObject meshHolder = new GameObject($"Chunk ({x}, {y}, {z})");
 					meshHolder.transform.parent = transform;
 					meshHolder.layer = gameObject.layer;
@@ -299,13 +319,11 @@ densityCompute.SetFloat("heightMultiplier", 1.0f);
 
 	public void Terraform(Vector3 point, float weight, float radius)
 	{
-		Debug.Log($"Terraform called at {point} with weight {weight} and radius {radius}");
 
 		// Get per-axis texture sizes
 		int sizeX = rawDensityTexture.width;
 		int sizeY = rawDensityTexture.height;
 		int sizeZ = rawDensityTexture.volumeDepth;
-		//Debug.Log($"Density texture size: {sizeX}x{sizeY}x{sizeZ}");
 
 		// Calculate total world size based on chunk grid and chunkSize
 		float worldSizeX = numChunksX * chunkSize;
@@ -316,7 +334,6 @@ densityCompute.SetFloat("heightMultiplier", 1.0f);
 		float pixelWorldSizeX = worldSizeX / sizeX;
 		float pixelWorldSizeY = worldSizeY / sizeY;
 		float pixelWorldSizeZ = worldSizeZ / sizeZ;
-		Debug.Log($"Pixel world size: {pixelWorldSizeX}, {pixelWorldSizeY}, {pixelWorldSizeZ}");
 
 		// Convert world position to texture coordinates (0..size-1)
 		float tx = Mathf.Clamp01(point.x / worldSizeX);
@@ -326,9 +343,7 @@ densityCompute.SetFloat("heightMultiplier", 1.0f);
 		int editX = Mathf.RoundToInt(tx * (sizeX - 1));
 		int editY = Mathf.RoundToInt(ty * (sizeY - 1));
 		int editZ = Mathf.RoundToInt(tz * (sizeZ - 1));
-		Debug.Log($"Edit voxel coords: {editX}, {editY}, {editZ}");
 
-		// Add this debug visualization here:
 		Vector3 editWorldPos = new Vector3(
 			(tx * worldSizeX) - worldSizeX / 2f,
 			(ty * worldSizeY) - worldSizeY / 2f,
@@ -339,14 +354,12 @@ densityCompute.SetFloat("heightMultiplier", 1.0f);
 		// Calculate edit radius in texture space (average pixel size for spherical brush)
 		float avgPixelWorldSize = (pixelWorldSizeX + pixelWorldSizeY + pixelWorldSizeZ) / 3f;
 		int editRadius = Mathf.CeilToInt(radius / avgPixelWorldSize);
-		Debug.Log($"Edit radius in voxels: {editRadius}");
 
 		// Clamp weight for strong terraforming
 		float minWeight = 10f;
 		if (Mathf.Abs(weight) < minWeight)
 		{
 			weight = minWeight * Mathf.Sign(weight);
-			Debug.Log($"Weight clamped to {weight}");
 		}
 
 		// Set edit compute shader parameters
@@ -356,7 +369,6 @@ densityCompute.SetFloat("heightMultiplier", 1.0f);
 		editCompute.SetInt("brushRadius", editRadius);
 		editCompute.SetInts("textureSize", sizeX, sizeY, sizeZ);
 
-		Debug.Log("Dispatching editCompute...");
 		ComputeHelper.Dispatch(editCompute, sizeX, sizeY, sizeZ);
 
 		// Optional: Blur for smooth edits
@@ -366,14 +378,11 @@ densityCompute.SetFloat("heightMultiplier", 1.0f);
 			blurCompute.SetInts("brushCentre", editX, editY, editZ);
 			blurCompute.SetInt("blurRadius", blurRadius);
 			blurCompute.SetInt("brushRadius", editRadius);
-			// Always dispatch over the full texture to ensure blur is applied after digging
-			Debug.Log($"Dispatching blurCompute with size {sizeX}x{sizeY}x{sizeZ}...");
 			ComputeHelper.Dispatch(blurCompute, sizeX, sizeY, sizeZ);
 		}
 
 		// Calculate world radius for affected chunks
 		float worldRadius = (editRadius + 1 + (blurMap ? blurRadius : 0)) * avgPixelWorldSize;
-		Debug.Log($"World radius for chunk update: {worldRadius}");
 
 		// Regenerate affected chunks
 		int affectedChunks = 0;
@@ -384,14 +393,14 @@ densityCompute.SetFloat("heightMultiplier", 1.0f);
 			Vector3 chunkCenter = (Vector3)chunk.id * chunk.size + Vector3.one * (chunk.size / 2f);
 			if (MathUtility.SphereIntersectsBox(point, worldRadius, chunkCenter, Vector3.one * chunk.size))
 			{
-				Debug.Log($"Chunk {i}: centre={chunk.id}, size={chunk.size}, point={point}, worldRadius={worldRadius}");
-				Debug.Log($"Chunk {i} INTERSECTS!");
 				chunk.terra = true;
 				GenerateChunk(chunk);
 				affectedChunks++;
 			}
 		}
-		Debug.Log($"Chunks regenerated: {affectedChunks}");
+		TryPickupResourceAtCursor();
+		// Pickup resources near the dig point, using the same radius as dig
+        //TryPickupNearbyResources(point, radius * 0.7f);
 	}
 
 		void Create3DTexture(ref RenderTexture texture, int width, int height, int depth, string name)
@@ -400,7 +409,6 @@ densityCompute.SetFloat("heightMultiplier", 1.0f);
 			var format = UnityEngine.Experimental.Rendering.GraphicsFormat.R32_SFloat;
 			if (texture == null || !texture.IsCreated() || texture.width != width || texture.height != height || texture.volumeDepth != depth || texture.graphicsFormat != format)
 			{
-				//Debug.Log ("Create tex: update noise: " + updateNoise);
 				if (texture != null)
 				{
 					texture.Release();
@@ -418,32 +426,50 @@ densityCompute.SetFloat("heightMultiplier", 1.0f);
 			texture.wrapMode = TextureWrapMode.Repeat;
 			texture.filterMode = FilterMode.Bilinear;
 			texture.name = name;
-			Debug.Log($"Created 3D Texture: {texture.width}x{texture.height}x{texture.volumeDepth}");
 		}
-	}
 
-// private void OnDrawGizmos()
-// {
-//     if (chunks == null) return;
+	// Simple inventory system
+    private Dictionary<string, int> inventory = new Dictionary<string, int>();
 
-//     // Draw chunk bounds
-//     Color chunkBoundsColor = Color.cyan;
-//     foreach (var chunk in chunks)
-//     {
-//         if (chunk == null) continue;
-//         chunk.DrawBoundsGizmo(chunkBoundsColor);
-//     }
+    void AddToInventory(string resourceType, int amount)
+    {
+        if (inventory.ContainsKey(resourceType))
+            inventory[resourceType] += amount;
+        else
+            inventory[resourceType] = amount;
+        Debug.Log($"Added {amount} {resourceType} to inventory. Total: {inventory[resourceType]}");
+    }
 
-//     // Draw last terraform area
-//     if (lastTerraformPoint != null)
-//     {
-//         Gizmos.color = Color.red;
-//         Gizmos.DrawWireSphere(lastTerraformPoint.Value, lastTerraformRadius);
+    // Only pick up resources if the dig directly hits them (precise)
+    void TryPickupNearbyResources(Vector3 digPosition, float radius)
+    {
+        Collider[] hits = Physics.OverlapSphere(digPosition, 0.05f); // very small radius
+        foreach (var hit in hits)
+        {
+            ResourcePickup pickup = hit.GetComponent<ResourcePickup>();
+            if (pickup != null)
+            {
+                AddToInventory(pickup.resourceType, 1);
+                Destroy(pickup.gameObject);
+                Debug.Log($"Picked up {pickup.resourceType}!");
+            }
+        }
+    }
 
-//         // Optional: Draw voxel/texture edit box
-//         // Gizmos.color = new Color(1f, 0.5f, 0f, 0.2f);
-//         // Gizmos.DrawWireCube(lastTerraformPoint.Value, Vector3.one * lastTerraformRadius * 2f);
-//     }
-// }
+    void TryPickupResourceAtCursor()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit, 100f))
+        {
+            ResourcePickup pickup = hit.collider.GetComponent<ResourcePickup>();
+            if (pickup != null)
+            {
+                AddToInventory(pickup.resourceType, 1);
+                Destroy(pickup.gameObject);
+                Debug.Log($"Picked up {pickup.resourceType}!");
+            }
+        }
+    }
+}
 
 
