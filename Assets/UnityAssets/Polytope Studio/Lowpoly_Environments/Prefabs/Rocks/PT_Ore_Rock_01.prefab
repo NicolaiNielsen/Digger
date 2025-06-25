@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1324489145511453036}
   - component: {fileID: 6069612551507580445}
-  - component: {fileID: -450313528582897065}
   - component: {fileID: 7050116676929595496}
+  - component: {fileID: -434330136409697417}
   m_Layer: 0
   m_Name: PT_Ore_Rock_01
   m_TagString: Resource
@@ -64,7 +64,20 @@ LODGroup:
     renderers:
     - renderer: {fileID: 2694475635295835367}
   m_Enabled: 1
---- !u!65 &-450313528582897065
+--- !u!114 &7050116676929595496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1813357942169304022}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3561bdfd1f169674a8a421e8dd123612, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  resourceType: Stone
+--- !u!65 &-434330136409697417
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -85,19 +98,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &7050116676929595496
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1813357942169304022}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3561bdfd1f169674a8a421e8dd123612, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  resourceType: Stone
 --- !u!1 &3513244448727352474
 GameObject:
   m_ObjectHideFlags: 0

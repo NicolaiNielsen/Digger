@@ -30,20 +30,20 @@ public class PlayerInteract : MonoBehaviour
 
     }
 
-    void Update()
-    {
-        playerUI.UpdateText(string.Empty);
+	void Update()
+	{
+		playerUI.UpdateText(string.Empty);
 
-        RaycastHit hit;
+		RaycastHit hit;
 
-        bool wasTerraformingLastFrame = isTerraforming;
-        isTerraforming = false;
+		bool wasTerraformingLastFrame = isTerraforming;
+		isTerraforming = false;
 
-        int numIterations = 5;
+		int numIterations = 5;
 
-        float digDistance = 3f; // Match this to your resource pickup raycast distance
+		float digDistance = 3f; // Match this to your resource pickup raycast distance
 
-        for (int i = 0; i < numIterations; i++)
+		for (int i = 0; i < numIterations; i++)
 		{
 			float rayRadius = terraformRadius * Mathf.Lerp(0.01f, 1, i / (numIterations - 1f));
 			if (Physics.SphereCast(cam.transform.position, rayRadius, cam.transform.forward, out hit, digDistance, mask))
@@ -53,7 +53,7 @@ public class PlayerInteract : MonoBehaviour
 				Terraform(hit.point);
 				break;
 			}
-		}
+		}	
     }
 
     void Terraform(Vector3 terraformPoint)

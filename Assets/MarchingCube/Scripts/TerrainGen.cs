@@ -30,6 +30,10 @@ public class TerrainGen : MonoBehaviour
 	public ComputeShader editCompute;
 	public Material material;
 
+	//Get player inventory
+
+	private Inventory playerInventory;
+
 	// Private
 	ComputeBuffer triangleBuffer;
 	ComputeBuffer triCountBuffer;
@@ -51,6 +55,9 @@ public class TerrainGen : MonoBehaviour
 
 	void Start()
 	{
+		playerInventory = player.GetComponent<Inventory>();
+		if (playerInventory == null)
+			Debug.LogError("PlayerInventory component not found on player!");
 		InitTextures();
 		CreateBuffers();
 		CreateChunks();
@@ -431,15 +438,6 @@ densityCompute.SetFloat("heightMultiplier", 1.0f);
 	// Simple inventory system
     private Dictionary<string, int> inventory = new Dictionary<string, int>();
 
-    void AddToInventory(string resourceType, int amount)
-    {
-        if (inventory.ContainsKey(resourceType))
-            inventory[resourceType] += amount;
-        else
-            inventory[resourceType] = amount;
-        Debug.Log($"Added {amount} {resourceType} to inventory. Total: {inventory[resourceType]}");
-    }
-
     // Only pick up a resource if the dig ray directly hits it
     void TryPickupNearbyResources(Vector3 digPosition, float radius)
     {
@@ -450,27 +448,10 @@ densityCompute.SetFloat("heightMultiplier", 1.0f);
             ResourcePickup pickup = hit.collider.GetComponent<ResourcePickup>();
             if (pickup != null)
             {
-                AddToInventory(pickup.resourceType, 1);
+                playerInventory.Add(pickup.resourceType, 1);
                 Destroy(pickup.gameObject);
                 Debug.Log($"Picked up {pickup.resourceType}!");
             }
         }
     }
-
-    // Checks if a resource is exposed (has air nearby)
-    bool IsResourceExposed(GameObject resource)
-    {
-        // Use a larger radius and require at least 2 non-resource colliders nearby
-        Collider[] nearby = Physics.OverlapSphere(resource.transform.position, 0.4f); // larger radius
-        int nonResourceCount = 0;
-        foreach (var col in nearby)
-        {
-            if (col.gameObject == resource) continue;
-            if (!col.GetComponent<ResourcePickup>())
-                nonResourceCount++;
-        }
-        // Require at least 2 non-resource colliders nearby to be considered exposed
-        return nonResourceCount >= 2;
-    }
-
 }
