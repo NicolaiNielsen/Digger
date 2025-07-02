@@ -4,6 +4,8 @@ using System;
 
 public class Inventory : MonoBehaviour
 {   
+
+    //Daily cmmit
     public int capacity = 20;
     [SerializeField]
     public event Action OnInventoryChanged;
