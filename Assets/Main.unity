@@ -51240,6 +51240,35 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6462484006312127367, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
   m_PrefabInstance: {fileID: 9134984405564995170}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5730278776952209959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2342232924432878809}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a463251cebe8f943b5345e258f00816, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  capacity: 20
+  cash: 0
+--- !u!114 &5730278776952209960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2342232924432878809}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f426b30a9e798c41a976cef71463132, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerInventory: {fileID: 5730278776952209959}
+  inventoryText: {fileID: 1724077613}
+  panelToToggle: {fileID: 0}
 --- !u!1001 &9134984405564995170
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -51268,6 +51297,10 @@ PrefabInstance:
       propertyPath: distance
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4735328652354295582, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
+      propertyPath: playerUI
+      value: 
+      objectReference: {fileID: 5730278776952209943}
     - target: {fileID: 4735328652354295582, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
       propertyPath: mask.m_Bits
       value: 64
@@ -51340,6 +51373,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6792751524081892027, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5730278776952209943}
+    - targetCorrespondingSourceObject: {fileID: 6792751524081892027, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5730278776952209959}
+    - targetCorrespondingSourceObject: {fileID: 6792751524081892027, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5730278776952209960}
     - targetCorrespondingSourceObject: {fileID: 2538945087815899423, guid: 4c84656e6a0504743bff59f9e9eb1d80, type: 3}
       insertIndex: -1
       addedObject: {fileID: 178382764}
