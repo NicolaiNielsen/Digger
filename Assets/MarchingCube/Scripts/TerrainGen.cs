@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine.Rendering;
 
+//TEsts
 public class TerrainGen : MonoBehaviour
 {
 
